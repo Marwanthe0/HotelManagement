@@ -1,0 +1,57 @@
+# Build output
+bin/
+obj/
+
+# Visual Studio files
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# NuGet packages
+*.nupkg
+packages/
+
+# Entity Framework migrations (keep migrations usually)
+# Do NOT ignore migrations for team projects
+
+# Database files
+*.mdf
+*.ldf
+
+# Environment files
+.env
+
+# Secrets
+appsettings.*.json
+!appsettings.json
+
+# Test results
+TestResults/
+
+# Coverage
+coverage/
+
+# Publish output
+publish/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Backup files
+*.bak
