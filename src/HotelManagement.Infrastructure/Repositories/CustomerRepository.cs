@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HotelManagement.Infrastructure.Repositories;
 
-public class CustomerRepository: ICustomerReository
+public class CustomerRepository : ICustomerRepository
 {
     private readonly HotelDbContext _context;
 
@@ -21,44 +21,31 @@ public class CustomerRepository: ICustomerReository
 
     public async Task<Customer?> GetByIdAsync(int id)
     {
-        return await _context.Customers.FirstOrDefaultAsync(c => c.Id == id);
+        return await _context.Customers
+            .FirstOrDefaultAsync(c => c.Id == id);
     }
 
-    public async Task<bool> ExistByEmailAsync(string email)
+    public async Task<bool> ExistsByEmailAsync(string email)
     {
-        return await _context.Customers.AnyAsync(c => c.Email == email);
+        return await _context.Customers
+            .AnyAsync(c => c.Email == email);
     }
 
     public async Task AddAsync(Customer customer)
     {
-        await _context.AddAsync(customer);
+        await _context.Customers.AddAsync(customer);
         await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateAsynce(Customer customer)
+    public async Task UpdateAsync(Customer customer)
     {
         _context.Customers.Update(customer);
         await _context.SaveChangesAsync();
     }
-    
+
     public async Task DeleteAsync(Customer customer)
     {
         _context.Customers.Remove(customer);
         await _context.SaveChangesAsync();
-    }
-
-    public Task<Customer?> GetByIdAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<bool> ExistsByEmailAsynce(string email)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task UpdateAsync(Customer customer)
-    {
-        throw new NotImplementedException();
     }
 }

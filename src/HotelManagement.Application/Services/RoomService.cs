@@ -1,7 +1,6 @@
 using HotelManagement.Application.DTOs.Rooms;
 using HotelManagement.Application.Interfaces;
 using HotelManagement.Domain.Entities;
-using HotelManagement.Application.DTOs.Rooms;
 
 namespace HotelManagement.Application.Services;
 
