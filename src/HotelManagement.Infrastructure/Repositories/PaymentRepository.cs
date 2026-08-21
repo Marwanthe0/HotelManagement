@@ -14,7 +14,7 @@ public class PaymentRepository : IPaymentRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<Payment>> GatAllAsync()
+    public async Task<IEnumerable<Payment>> GetAllAsync()
     {
         return await _context.Payments.ToListAsync();
     }
@@ -34,10 +34,5 @@ public class PaymentRepository : IPaymentRepository
     public async Task<IEnumerable<Payment>> GetByBookingIdAsync(int bookingId)
     {
         return await _context.Payments.Where(p => p.BookingId == bookingId).ToListAsync();
-    }
-
-    public Task<IEnumerable<Payment>> GetAllAsync()
-    {
-        throw new NotImplementedException();
     }
 }
