@@ -110,7 +110,8 @@ public class BookingService : IBookingService
         if (room is null)
             throw new InvalidOperationException("Room Not Found.");
 
-        var isAvailable = await _bookingRepository.IsRoomAvailableAsync(dto.RoomId, dto.CheckInDate, dto.CheckOutDate);
+        var isAvailable =
+            await _bookingRepository.IsRoomAvailableAsync(dto.RoomId, dto.CheckInDate, dto.CheckOutDate, id);
         if (!isAvailable)
             throw new InvalidOperationException("The Room is not available for the selected dates.");
 

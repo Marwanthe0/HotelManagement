@@ -26,13 +26,15 @@ public class BookingRepository: IBookingRepository
     public async Task<bool> IsRoomAvailableAsync(
         int roomId,
         DateTime checkInDate,
-        DateTime checkOutDate
+        DateTime checkOutDate,
+        int? excludedBookingId = null
     )
     {
         var hasoverlap = await _context.Bookings.AnyAsync(b =>
         b.RoomId == roomId &&
         b.CheckInDate < checkOutDate &&
-        b.CheckOutDate > checkInDate
+        b.CheckOutDate > checkInDate &&
+        (!excludedBookingId.HasValue || b.Id != excludedBookingId.Value)
         );
         return !hasoverlap;
     }
