@@ -50,7 +50,7 @@ public class CustomerService:ICustomerService
         var emailExists = await _customerRepository.ExistsByEmailAsync(dto.Email);
         if(emailExists)
         {
-            throw new Exception("A customer with this email already exists.");
+            throw new InvalidOperationException("A customer with this email already exists.");
         }
         var customer = new Customer 
         {
@@ -83,7 +83,7 @@ public class CustomerService:ICustomerService
             var emailExists = await _customerRepository.ExistsByEmailAsync(dto.Email);
             if(emailExists)
             {
-                throw new Exception("A customer with this email already exists.");
+                throw new InvalidOperationException("A customer with this email already exists.");
             }
         }
         customer.FirstName = dto.FirstName;
