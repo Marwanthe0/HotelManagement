@@ -1,7 +1,16 @@
 import os
 import shutil
 import subprocess
+import sys
 from datetime import datetime
+
+# Ensure utf-8 encoding for console output on Windows
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
 # ============================================================
 # CONFIGURATION
@@ -271,28 +280,26 @@ def push_hotel_management():
     print("==============================================")
     print()
 
-    if not git_has_changes(HOTEL_DIR):
-        print("ℹ️ HotelManagement: No changes to commit.")
+    if git_has_changes(HOTEL_DIR):
+        print("📦 Staging HotelManagement changes...")
 
-        return True
+        if not run_git(["git", "add", "."], HOTEL_DIR):
+            print("❌ Failed to stage HotelManagement.")
 
-    print("📦 Staging HotelManagement changes...")
+            return False
 
-    if not run_git(["git", "add", "."], HOTEL_DIR):
-        print("❌ Failed to stage HotelManagement.")
+        print("📝 Creating HotelManagement commit...")
 
-        return False
+        result = subprocess.run(
+            ["git", "commit", "-m", "Update HotelManagement"], cwd=HOTEL_DIR
+        )
 
-    print("📝 Creating HotelManagement commit...")
+        if result.returncode != 0:
+            print("❌ HotelManagement commit failed.")
 
-    result = subprocess.run(
-        ["git", "commit", "-m", "Update HotelManagement"], cwd=HOTEL_DIR
-    )
-
-    if result.returncode != 0:
-        print("❌ HotelManagement commit failed.")
-
-        return False
+            return False
+    else:
+        print("ℹ️ HotelManagement: No uncommitted changes.")
 
     print("🚀 Pushing HotelManagement to GitHub...")
 
@@ -329,14 +336,22 @@ def get_cse_hotel_changes():
 
     changes = []
 
-    normalized_target = os.path.relpath(CSE_HOTEL_DIR, CSE_DIR).replace("/", "\\")
+    normalized_target = os.path.relpath(CSE_HOTEL_DIR, CSE_DIR).replace("/", "\\").rstrip("\\")
 
     for line in result.stdout.splitlines():
-        if not line:
+        if not line.strip():
             continue
 
         status = line[:2]
-        filepath = line[3:]
+        filepath = line[3:].strip()
+
+        # Handle git rename format: "R  old -> new" or "R  \"old\" -> \"new\""
+        if " -> " in filepath:
+            filepath = filepath.split(" -> ")[1].strip()
+
+        # Git quotes paths containing spaces/special characters
+        if filepath.startswith('"') and filepath.endswith('"'):
+            filepath = filepath[1:-1]
 
         normalized_path = filepath.replace("/", "\\")
 
