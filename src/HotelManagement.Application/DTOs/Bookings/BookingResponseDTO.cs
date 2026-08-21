@@ -1,4 +1,4 @@
-namespace HotelManagement.Application.DTOs;
+namespace HotelManagement.Application.DTOs.Bookings;
 
 public class BookingResponseDTO
 {
