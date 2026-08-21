@@ -47,7 +47,7 @@ public class HotelDbContext: DbContext
         //One Customer  ---> Many Booking
         modelBuilder.Entity<Booking>()
         .HasOne(b => b.Customer)
-        .WithMany()
+        .WithMany(c=>c.Bookings)
         .HasForeignKey(b => b.CustomerId);
 
         //Room <--> Booking Relationship
