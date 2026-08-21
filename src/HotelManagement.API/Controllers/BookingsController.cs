@@ -40,8 +40,7 @@ public class BookingsController : ControllerBase
     {
         var booking = await _bookingService.CreateAsync(dto);
 
-        return CreatedAtAction(nameof(GetById),
-                               new { id = booking.Id }, booking);
+        return CreatedAtAction(nameof(GetById), new { id = booking.Id }, booking);
     }
 
     //PUT /api/bookings/{id}
@@ -49,8 +48,49 @@ public class BookingsController : ControllerBase
     public async Task<ActionResult<BookingResponseDTO>> Update(int id, UpdateBookingDTO dto)
     {
         var booking = await _bookingService.UpdateAsync(id, dto);
-        if (booking is null) return NotFound();
+        if (booking is null)
+            return NotFound();
 
+        return Ok(booking);
+    }
+
+    //PATCH /api/bookings/{id}/confirm
+    [HttpPatch("{id:int}/confirm")]
+    public async Task<ActionResult<BookingResponseDTO>> Confirm(int id)
+    {
+        var booking = await _bookingService.ConfirmAsync(id);
+        if (booking is null)
+            return NotFound();
+        return Ok(booking);
+    }
+
+    //PATCH /api/bookings/{id}/cancel
+    [HttpPatch("{id:int}/cancel")]
+    public async Task<ActionResult<BookingResponseDTO>> Cancel(int id)
+    {
+        var booking = await _bookingService.CancelAsync(id);
+        if (booking is null)
+            return NotFound();
+        return Ok(booking);
+    }
+
+    //PATCH /api/bookings/{id}/check-in
+    [HttpPatch("{id:int}/check-in")]
+    public async Task<ActionResult<BookingResponseDTO>> CheckIn(int id)
+    {
+        var booking = await _bookingService.CheckInAsync(id);
+        if (booking is null)
+            return NotFound();
+        return Ok(booking);
+    }
+
+    //PATCH /api/bookings/{id}/check-out
+    [HttpPatch("{id:int}/check-out")]
+    public async Task<ActionResult<BookingResponseDTO>> CheckOUT(int id)
+    {
+        var booking = await _bookingService.CheckOutAsync(id);
+        if (booking is null)
+            return NotFound();
         return Ok(booking);
     }
 
@@ -59,7 +99,8 @@ public class BookingsController : ControllerBase
     public async Task<IActionResult> Delete(int id)
     {
         var deleted = await _bookingService.DeleteAsync(id);
-        if (!deleted) return NotFound();
+        if (!deleted)
+            return NotFound();
         return NoContent();
     }
 }

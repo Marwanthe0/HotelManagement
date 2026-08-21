@@ -70,6 +70,11 @@ public class PaymentService : IPaymentService
         {
             throw new InvalidOperationException("Booking with this Id not Found.");
         }
+        if (dto.Amount <= 0)
+        {
+            throw new ArgumentException("Payment amount must be greater than Zero.");
+        }
+
         var existingPayments = await _paymentRepository.GetByBookingIdAsync(dto.BookingId);
         var totalPaidAmount = existingPayments
             .Where(p => p.PaymentStatus == "Paid")
@@ -84,10 +89,6 @@ public class PaymentService : IPaymentService
             );
         }
 
-        if (dto.Amount <= 0)
-        {
-            throw new ArgumentException("Payment amount must be greater than Zero.");
-        }
         if (string.IsNullOrWhiteSpace(dto.PaymentMethod))
         {
             throw new ArgumentException("Payment method is required.");

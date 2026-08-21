@@ -36,7 +36,7 @@ public class BookingService : IBookingService
             CheckOutDate = b.CheckOutDate,
             BookingDate = b.BookingDate,
             Status = b.Status,
-            TotalAmount = b.TotalAmount
+            TotalAmount = b.TotalAmount,
         });
     }
 
@@ -55,7 +55,7 @@ public class BookingService : IBookingService
             CheckOutDate = booking.CheckOutDate,
             BookingDate = booking.BookingDate,
             Status = booking.Status,
-            TotalAmount = booking.TotalAmount
+            TotalAmount = booking.TotalAmount,
         };
     }
 
@@ -183,5 +183,116 @@ public class BookingService : IBookingService
 
         await _bookingRepository.DeleteAsync(booking);
         return true;
+    }
+
+    public async Task<BookingResponseDTO?> ConfirmAsync(int id)
+    {
+        var booking = await _bookingRepository.GetByIdAsync(id);
+        if (booking is null)
+            return null;
+        if (booking.Status != "Pending")
+        {
+            throw new InvalidOperationException("Only pending bookings can be confirmed.");
+        }
+        booking.Status = "Confirmed";
+
+        await _bookingRepository.UpdateAsync(booking);
+
+        return new BookingResponseDTO
+        {
+            Id = booking.Id,
+            CustomerId = booking.CustomerId,
+            RoomId = booking.RoomId,
+            CheckInDate = booking.CheckInDate,
+            CheckOutDate = booking.CheckOutDate,
+            BookingDate = booking.BookingDate,
+            Status = booking.Status,
+            TotalAmount = booking.TotalAmount,
+        };
+    }
+
+    public async Task<BookingResponseDTO?> CancelAsync(int id)
+    {
+        var booking = await _bookingRepository.GetByIdAsync(id);
+
+        if (booking is null)
+            return null;
+
+        if (booking.Status != "Pending" && booking.Status != "Confirmed")
+        {
+            throw new InvalidOperationException(
+                "Only pending or confirmed bookings can be cancelled."
+            );
+        }
+
+        booking.Status = "Cancelled";
+
+        await _bookingRepository.UpdateAsync(booking);
+
+        return new BookingResponseDTO
+        {
+            Id = booking.Id,
+            CustomerId = booking.CustomerId,
+            RoomId = booking.RoomId,
+            CheckInDate = booking.CheckInDate,
+            CheckOutDate = booking.CheckOutDate,
+            BookingDate = booking.BookingDate,
+            Status = booking.Status,
+            TotalAmount = booking.TotalAmount,
+        };
+    }
+
+    public async Task<BookingResponseDTO?> CheckInAsync(int id)
+    {
+        var booking = await _bookingRepository.GetByIdAsync(id);
+        if (booking is null)
+            return null;
+
+        if (booking.Status != "Confirmed")
+        {
+            throw new InvalidOperationException("Only Confirmed bookings can be checked in.");
+        }
+
+        booking.Status = "CheckedIn";
+        await _bookingRepository.UpdateAsync(booking);
+
+        return new BookingResponseDTO
+        {
+            Id = booking.Id,
+            CustomerId = booking.CustomerId,
+            RoomId = booking.RoomId,
+            CheckInDate = booking.CheckInDate,
+            CheckOutDate = booking.CheckOutDate,
+            BookingDate = booking.BookingDate,
+            Status = booking.Status,
+            TotalAmount = booking.TotalAmount,
+        };
+    }
+    
+    public async Task<BookingResponseDTO?> CheckOutAsync(int id)
+    {
+        var booking = await _bookingRepository.GetByIdAsync(id);
+        if (booking is null)
+            return null;
+
+        if (booking.Status != "CheckedIn")
+        {
+            throw new InvalidOperationException("Only checked-in bookings can be checked in.");
+        }
+
+        booking.Status = "CheckedOut";
+        await _bookingRepository.UpdateAsync(booking);
+
+        return new BookingResponseDTO
+        {
+            Id = booking.Id,
+            CustomerId = booking.CustomerId,
+            RoomId = booking.RoomId,
+            CheckInDate = booking.CheckInDate,
+            CheckOutDate = booking.CheckOutDate,
+            BookingDate = booking.BookingDate,
+            Status = booking.Status,
+            TotalAmount = booking.TotalAmount,
+        };
     }
 }

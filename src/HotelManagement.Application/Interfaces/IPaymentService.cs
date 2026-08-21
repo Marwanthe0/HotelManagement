@@ -1,5 +1,4 @@
 using HotelManagement.Application.DTOs.Payments;
-using HotelManagement.Domain.Entities;
 
 namespace HotelManagement.Application.Interfaces;
 
