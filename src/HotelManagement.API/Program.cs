@@ -29,6 +29,10 @@ builder.Services.AddDbContext<HotelDbContext>(options =>
 //Room repository and services
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IRoomRepository, RoomRepository>();
+//Customer Repository and Services
+builder.Services.AddScoped<ICustomerService,CustomerService>();
+builder.Services.AddScoped<ICustomerRepository,CustomerRepository>();
+
 
 var app = builder.Build();
 

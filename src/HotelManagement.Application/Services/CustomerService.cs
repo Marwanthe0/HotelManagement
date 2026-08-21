@@ -17,7 +17,7 @@ public class CustomerService:ICustomerService
     {
         var customers = await _customerRepository.GetAllAsync();
 
-        return customers.select(c=>new CustomerResponseDTO
+        return customers.Select(c=>new CustomerResponseDTO
         {
             Id = c.Id,
             FirstName = c.FirstName,
@@ -28,7 +28,7 @@ public class CustomerService:ICustomerService
         });
     }
 
-    public asyng Task<CustomerResponseDTO?> GetByIdAsync(int id)
+    public async Task<CustomerResponseDTO?> GetByIdAsync(int id)
     {
         var customer = await _customerRepository.GetByIdAsync(id);
 
@@ -43,83 +43,70 @@ public class CustomerService:ICustomerService
             Phone = customer.Phone,
             Address = customer.Address
         };
+    }
 
-        public async Task<CustomerResponseDTO> CreateAsync(CreateCustomerDTO dto)
+    public async Task<CustomerResponseDTO> CreateAsync(CreateCustomerDTO dto)
+    {
+        var emailExists = await _customerRepository.ExistsByEmailAsync(dto.Email);
+        if(emailExists)
         {
-            var emailExists = await _customerRepository.ExistsByEmailAsync(dto.email);
+            throw new Exception("A customer with this email already exists.");
+        }
+        var customer = new Customer 
+        {
+            FirstName = dto.FirstName,
+            LastName = dto.LastName,
+            Email = dto.Email,
+            Phone = dto.Phone,
+            Address = dto.Address
+        };
+        
+        await _customerRepository.AddAsync(customer);
+        return new CustomerResponseDTO
+        {
+            Id = customer.Id,
+            FirstName = customer.FirstName,
+            LastName = customer.LastName,
+            Email = customer.Email,
+            Phone = customer.Phone,
+            Address = customer.Address     
+        };
+    }
 
+    public async Task<CustomerResponseDTO?> UpdateAsync(int id,UpdateCustomerDTO dto)
+    {
+        var customer = await _customerRepository.GetByIdAsync(id);
+        if(customer is null) return null;
+        
+        if(customer.Email != dto.Email)
+        {
+            var emailExists = await _customerRepository.ExistsByEmailAsync(dto.Email);
             if(emailExists)
             {
                 throw new Exception("A customer with this email already exists.");
             }
-
-            var customer = new customer 
-            {
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                Email = dto.Email,
-                Phone = dto.Phone,
-                Address = dto.Address
-            };
-            
-            await _customerRepository.AddAsync(customer);
-
-            return new CustomerResponseDTO
-            {
-                Id = customer.Id,
-                FirstName = customer.FirstName,
-                LastName = customer.LastName,
-                Email = customer.Email,
-                Phone = customer.Phone,
-                Address = customer.Address     
-            };
         }
-
-
-        public async Task<CustomerResponseDTO> UpdateAsync(int id,UpdateCustomerDTO dto)
+        customer.FirstName = dto.FirstName;
+        customer.LastName = dto.LastName;
+        customer.Email = dto.Email;
+        customer.Phone = dto.Phone;
+        customer.Address = dto.Address;
+        await _customerRepository.UpdateAsync(customer);
+        return new CustomerResponseDTO
         {
-            var customer = await _customerRepository.GetByIdAsync(id);
-
-            if(customer is null) return null;
-            
-            if(customer.Email != dto.Email)
-            {
-                var emailExists = await _customerRepository.ExistsByEmailAsync(dto.Email);
-
-                if(emailExists)
-                {
-                    throw new Exception("A customet with this email already exists.");
-                }
-            }
-
-            customer.FirstName = dto.FirstName;
-            customer.LastName = dto.LastName;
-            customer.Email = dto.Email;
-            customer.Phone = dto.Phone;
-            customer.Address = dto.Address;
-
-            await _customerRepository.UpdateAsync(customer);
-
-            return new CustomerResponseDTO
-            {
-                Id = customer.Id,
-                FirstName = customer.FirstName,
-                LastName = customer.LastName,
-                Email = customer.Email,
-                Phone = customer.Phone,
-                Address = customer.Address
-            };
-        }
-
-        public async Task<bool> DeleteAsync(int id)
-        {
-            var customer = await _customerRepository.GetByIdAsync(id);
-
-            if(customer is null) return false;
-
-            await _customerRepository.DeleteAsync(customer);
-
-            return true;
-        }
+            Id = customer.Id,
+            FirstName = customer.FirstName,
+            LastName = customer.LastName,
+            Email = customer.Email,
+            Phone = customer.Phone,
+            Address = customer.Address
+        };
+    }
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var customer = await _customerRepository.GetByIdAsync(id);
+        if(customer is null) return false;
+        await _customerRepository.DeleteAsync(customer);
+        return true;
     }
 }
