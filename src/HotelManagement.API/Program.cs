@@ -1,10 +1,10 @@
-using HotelManagement.Infrastructure.Data;
-using HotelManagement.Infrastructure.Repositories;
+using HotelManagement.API.Exceptions;
 using HotelManagement.Application.Interfaces;
 using HotelManagement.Application.Services;
+using HotelManagement.Infrastructure.Data;
+using HotelManagement.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
-using HotelManagement.API.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,17 +20,26 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 // Connecting Sql Server from connectionstring
-builder.Services.AddDbContext<HotelDbContext>(
-    options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<HotelDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
+
 // Room repository and services
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IRoomRepository, RoomRepository>();
+
 // Customer Repository and Services
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+
 // Booking Repository and Services
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+
+//Payment repository and Services
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+
 
 var app = builder.Build();
 
