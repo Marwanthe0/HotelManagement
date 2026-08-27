@@ -15,4 +15,6 @@ public interface IBookingService
     Task<BookingResponseDTO?> CheckInAsync(int id);
     Task<BookingResponseDTO?> CheckOutAsync(int id);
 
+    Task<IEnumerable<BookingResponseDTO>> GetByCustomerIdAsync(int customerId);
+
 }

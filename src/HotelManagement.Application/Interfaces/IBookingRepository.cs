@@ -8,8 +8,9 @@ public interface IBookingRepository
     Task<Booking?> GetByIdAsync(int id);
     Task<bool> IsRoomAvailableAsync(int roomId, DateTime CheckInDate, DateTime CheckOutDate,
                                     int? excludedBookingId = null);
-
     Task AddAsync(Booking booking);
     Task UpdateAsync(Booking booking);
     Task DeleteAsync(Booking booking);
+
+    Task<IEnumerable<Booking>> GetByCustomerIdAsync(int customerId);
 }

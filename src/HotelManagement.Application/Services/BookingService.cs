@@ -268,7 +268,7 @@ public class BookingService : IBookingService
             TotalAmount = booking.TotalAmount,
         };
     }
-    
+
     public async Task<BookingResponseDTO?> CheckOutAsync(int id)
     {
         var booking = await _bookingRepository.GetByIdAsync(id);
@@ -294,5 +294,22 @@ public class BookingService : IBookingService
             Status = booking.Status,
             TotalAmount = booking.TotalAmount,
         };
+    }
+
+    public async Task<IEnumerable<BookingResponseDTO>> GetByCustomerIdAsync(int customerId)
+    {
+        var bookings = await _bookingRepository.GetByCustomerIdAsync(customerId);
+
+        return bookings.Select(b => new BookingResponseDTO
+        {
+            Id = b.Id,
+            CustomerId = b.CustomerId,
+            RoomId = b.RoomId,
+            CheckInDate = b.CheckInDate,
+            CheckOutDate = b.CheckOutDate,
+            BookingDate = b.BookingDate,
+            Status = b.Status,
+            TotalAmount = b.TotalAmount,
+        });
     }
 }

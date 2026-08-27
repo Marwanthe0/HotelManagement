@@ -34,6 +34,15 @@ public class BookingsController : ControllerBase
         return Ok(booking);
     }
 
+    // GET /api/bookings/customer/{customerId}
+    [HttpGet("customer/{customerId:int}")]
+    public async Task<ActionResult<IEnumerable<BookingResponseDTO>>> GetByCustomerId(int customerId)
+    {
+        var bookings = await _bookingService.GetByCustomerIdAsync(customerId);
+
+        return Ok(bookings);
+    }
+
     // POST /api/bookings
     [HttpPost]
     public async Task<ActionResult<BookingResponseDTO>> Create(CreateBookingDTO dto)

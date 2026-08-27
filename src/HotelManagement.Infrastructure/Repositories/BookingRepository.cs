@@ -5,9 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HotelManagement.Infrastructure.Repositories;
 
-public class BookingRepository: IBookingRepository
+public class BookingRepository : IBookingRepository
 {
     private readonly HotelDbContext _context;
+
     public BookingRepository(HotelDbContext context)
     {
         _context = context;
@@ -17,9 +18,10 @@ public class BookingRepository: IBookingRepository
     {
         return await _context.Bookings.ToListAsync();
     }
+
     public async Task<Booking?> GetByIdAsync(int id)
     {
-        var booking = _context.Bookings.FirstOrDefault(b => b.Id == id);
+        var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.Id == id);
         return booking;
     }
 
@@ -31,10 +33,12 @@ public class BookingRepository: IBookingRepository
     )
     {
         var hasoverlap = await _context.Bookings.AnyAsync(b =>
-        b.RoomId == roomId &&
-        b.CheckInDate < checkOutDate &&
-        b.CheckOutDate > checkInDate &&
-        (!excludedBookingId.HasValue || b.Id != excludedBookingId.Value)
+            b.RoomId == roomId
+            && b.CheckInDate < checkOutDate
+            && b.CheckOutDate > checkInDate
+            && (!excludedBookingId.HasValue || b.Id != excludedBookingId.Value)
+            && b.Status != "Cancelled"
+            && b.Status != "CheckedOut"
         );
         return !hasoverlap;
     }
@@ -50,9 +54,15 @@ public class BookingRepository: IBookingRepository
         _context.Bookings.Update(booking);
         await _context.SaveChangesAsync();
     }
+
     public async Task DeleteAsync(Booking booking)
     {
         _context.Bookings.Remove(booking);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<Booking>> GetByCustomerIdAsync(int customerId)
+    {
+        return await _context.Bookings.Where(b => b.CustomerId == customerId).ToListAsync();
     }
 }

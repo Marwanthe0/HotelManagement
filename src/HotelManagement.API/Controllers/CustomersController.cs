@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HotelManagement.API.Controllers;
 
 [ApiController]
-[Route("api/controller")]
+[Route("api/[controller]")]
 public class CustomersController : ControllerBase
 {
     private readonly ICustomerService _customerSerivce;
@@ -42,13 +42,8 @@ public class CustomersController : ControllerBase
     {
         var customer = await _customerSerivce.CreateAsync(dto);
 
-        return CreatedAtAction(
-            nameof(GetById),
-            new { id = customer.Id },
-            customer
-        );
+        return CreatedAtAction(nameof(GetById), new { id = customer.Id }, customer);
     }
-
 
     //PUT /api/customers/{id}
     [HttpPut("{id:int}")]
@@ -56,7 +51,8 @@ public class CustomersController : ControllerBase
     {
         var customer = await _customerSerivce.UpdateAsync(id, dto);
 
-        if (customer is null) return NotFound();
+        if (customer is null)
+            return NotFound();
         return Ok(customer);
     }
 
@@ -66,9 +62,8 @@ public class CustomersController : ControllerBase
     {
         var deleted = await _customerSerivce.DeleteAsync(id);
 
-        if (!deleted) return NotFound();
+        if (!deleted)
+            return NotFound();
         return NoContent();
     }
-    
-    
 }
