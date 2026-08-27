@@ -1,10 +1,12 @@
 using HotelManagement.Application.DTOs.Bookings;
 using HotelManagement.Application.DTOs.Customers;
 using HotelManagement.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelManagement.API.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class CustomersController : ControllerBase
@@ -27,7 +29,6 @@ public class CustomersController : ControllerBase
         var customers = await _customerService.GetAllAsync(search);
         return Ok(customers);
     }
-
 
     //GET /api/customers/{id}
     [HttpGet("{id:int}")]

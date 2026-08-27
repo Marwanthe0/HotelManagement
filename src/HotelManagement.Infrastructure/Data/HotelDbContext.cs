@@ -14,6 +14,7 @@ public class HotelDbContext : DbContext
     public DbSet<Booking> Bookings { get; set; }
     public DbSet<Payment> Payments { get; set; }
     public DbSet<Employee> Employees { get; set; }
+    public DbSet<User> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -53,6 +54,14 @@ public class HotelDbContext : DbContext
 
         modelBuilder.Entity<Employee>()
         .HasIndex(e => e.Email)
+        .IsUnique();
+
+        modelBuilder.Entity<User>()
+        .HasIndex(u => u.Email)
+        .IsUnique();
+
+        modelBuilder.Entity<User>()
+        .HasIndex(u => u.Username)
         .IsUnique();
 
         /*--------Setting Relationship Between Tables------------*/
