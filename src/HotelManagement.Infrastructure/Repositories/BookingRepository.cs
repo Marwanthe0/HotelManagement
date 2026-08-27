@@ -21,8 +21,7 @@ public class BookingRepository : IBookingRepository
 
     public async Task<Booking?> GetByIdAsync(int id)
     {
-        var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.Id == id);
-        return booking;
+        return await _context.Bookings.FirstOrDefaultAsync(b => b.Id == id);
     }
 
     public async Task<bool> IsRoomAvailableAsync(
@@ -32,7 +31,7 @@ public class BookingRepository : IBookingRepository
         int? excludedBookingId = null
     )
     {
-        var hasoverlap = await _context.Bookings.AnyAsync(b =>
+        var hasOverlap = await _context.Bookings.AnyAsync(b =>
             b.RoomId == roomId
             && b.CheckInDate < checkOutDate
             && b.CheckOutDate > checkInDate
@@ -40,8 +39,26 @@ public class BookingRepository : IBookingRepository
             && b.Status != "Cancelled"
             && b.Status != "CheckedOut"
         );
-        return !hasoverlap;
+        return !hasOverlap;
     }
+
+    public async Task<IEnumerable<int>> GetBookedRoomIdsAsync(
+        DateTime checkInDate,
+        DateTime checkOutDate
+    )
+    {
+        return await _context
+            .Bookings.Where(b =>
+                b.CheckInDate < checkOutDate
+                && b.CheckOutDate > checkInDate
+                && b.Status != "Cancelled"
+                && b.Status != "CheckedOut"
+            )
+            .Select(b => b.RoomId)
+            .Distinct()
+            .ToListAsync();
+    }
+
 
     public async Task AddAsync(Booking booking)
     {
@@ -63,6 +80,32 @@ public class BookingRepository : IBookingRepository
 
     public async Task<IEnumerable<Booking>> GetByCustomerIdAsync(int customerId)
     {
-        return await _context.Bookings.Where(b => b.CustomerId == customerId).ToListAsync();
+        return await _context
+            .Bookings.Where(b => b.CustomerId == customerId)
+            .OrderByDescending(b => b.BookingDate)
+            .ToListAsync();
     }
+
+    public async Task<IEnumerable<Booking>> GetByStatusAsync(string status)
+    {
+        return await _context
+            .Bookings.Where(b => b.Status == status)
+            .OrderByDescending(b => b.BookingDate)
+            .ToListAsync();
+    }
+
+    public async Task<bool> HasActiveBookingsForRoomAsync(int roomId)
+    {
+        return await _context.Bookings.AnyAsync(b =>
+            b.RoomId == roomId
+            && b.Status != "Cancelled"
+            && b.Status != "CheckedOut"
+        );
+    }
+
+    public async Task<bool> HasBookingsForCustomerAsync(int customerId)
+    {
+        return await _context.Bookings.AnyAsync(b => b.CustomerId == customerId);
+    }
+
 }

@@ -33,6 +33,23 @@ public class PaymentRepository : IPaymentRepository
 
     public async Task<IEnumerable<Payment>> GetByBookingIdAsync(int bookingId)
     {
-        return await _context.Payments.Where(p => p.BookingId == bookingId).ToListAsync();
+        return await _context
+            .Payments.Where(p => p.BookingId == bookingId)
+            .OrderBy(p => p.PaymentDate)
+            .ToListAsync();
+    }
+
+    public async Task<decimal> GetPaidAmountByBookingIdAsync(int bookingId)
+    {
+        return await _context
+            .Payments.Where(p => p.BookingId == bookingId && p.PaymentStatus == "Paid")
+            .SumAsync(p => (decimal?)p.Amount) ?? 0m;
+    }
+
+    public async Task<bool> HasPaymentsForBookingAsync(int bookingId)
+    {
+        return await _context.Payments.AnyAsync(p => p.BookingId == bookingId);
     }
 }
+
+

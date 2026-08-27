@@ -1,6 +1,6 @@
+using HotelManagement.Application.DTOs.Bookings;
 using HotelManagement.Application.DTOs.Customers;
 using HotelManagement.Application.Interfaces;
-using HotelManagement.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelManagement.API.Controllers;
@@ -9,38 +9,42 @@ namespace HotelManagement.API.Controllers;
 [Route("api/[controller]")]
 public class CustomersController : ControllerBase
 {
-    private readonly ICustomerService _customerSerivce;
+    private readonly ICustomerService _customerService;
+    private readonly IBookingService _bookingService;
 
-    public CustomersController(ICustomerService customerService)
+    public CustomersController(ICustomerService customerService, IBookingService bookingService)
     {
-        _customerSerivce = customerService;
+        _customerService = customerService;
+        _bookingService = bookingService;
     }
 
     //GET /api/customers
+    //GET /api/customers?search=John
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<CustomerResponseDTO>>> GetAll()
+    public async Task<ActionResult<IEnumerable<CustomerResponseDTO>>> GetAll(
+        [FromQuery] string? search)
     {
-        var customers = await _customerSerivce.GetAllAsync();
+        var customers = await _customerService.GetAllAsync(search);
         return Ok(customers);
     }
+
 
     //GET /api/customers/{id}
     [HttpGet("{id:int}")]
     public async Task<ActionResult<CustomerResponseDTO>> GetById(int id)
     {
-        var customer = await _customerSerivce.GetByIdAsync(id);
+        var customer = await _customerService.GetByIdAsync(id);
         if (customer is null)
-        {
             return NotFound();
-        }
+
         return Ok(customer);
     }
 
-    //POST /api/controller
+    //POST /api/customers
     [HttpPost]
     public async Task<ActionResult<CustomerResponseDTO>> Create(CreateCustomerDTO dto)
     {
-        var customer = await _customerSerivce.CreateAsync(dto);
+        var customer = await _customerService.CreateAsync(dto);
 
         return CreatedAtAction(nameof(GetById), new { id = customer.Id }, customer);
     }
@@ -49,7 +53,7 @@ public class CustomersController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<ActionResult<CustomerResponseDTO>> Update(int id, UpdateCustomerDTO dto)
     {
-        var customer = await _customerSerivce.UpdateAsync(id, dto);
+        var customer = await _customerService.UpdateAsync(id, dto);
 
         if (customer is null)
             return NotFound();
@@ -60,10 +64,23 @@ public class CustomersController : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var deleted = await _customerSerivce.DeleteAsync(id);
+        var deleted = await _customerService.DeleteAsync(id);
 
         if (!deleted)
             return NotFound();
         return NoContent();
+    }
+
+    //GET /api/customers/{customerId}/bookings
+    [HttpGet("{customerId:int}/bookings")]
+    public async Task<ActionResult<IEnumerable<BookingResponseDTO>>> GetBookings(int customerId)
+    {
+        // First verify the customer exists
+        var customer = await _customerService.GetByIdAsync(customerId);
+        if (customer is null)
+            return NotFound();
+
+        var bookings = await _bookingService.GetByCustomerIdAsync(customerId);
+        return Ok(bookings);
     }
 }

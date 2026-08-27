@@ -16,12 +16,15 @@ public class BookingsController : ControllerBase
     }
 
     // GET /api/bookings
+    // GET /api/bookings?status=Confirmed
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<BookingResponseDTO>>> GetAll()
+    public async Task<ActionResult<IEnumerable<BookingResponseDTO>>> GetAll(
+        [FromQuery] string? status)
     {
-        var bookings = await _bookingService.GetAllAsync();
+        var bookings = await _bookingService.GetAllAsync(status);
         return Ok(bookings);
     }
+
 
     // GET /api/bookings/{id}
     [HttpGet("{id:int}")]
@@ -32,15 +35,6 @@ public class BookingsController : ControllerBase
         if (booking is null)
             return NotFound();
         return Ok(booking);
-    }
-
-    // GET /api/bookings/customer/{customerId}
-    [HttpGet("customer/{customerId:int}")]
-    public async Task<ActionResult<IEnumerable<BookingResponseDTO>>> GetByCustomerId(int customerId)
-    {
-        var bookings = await _bookingService.GetByCustomerIdAsync(customerId);
-
-        return Ok(bookings);
     }
 
     // POST /api/bookings
@@ -95,7 +89,7 @@ public class BookingsController : ControllerBase
 
     //PATCH /api/bookings/{id}/check-out
     [HttpPatch("{id:int}/check-out")]
-    public async Task<ActionResult<BookingResponseDTO>> CheckOUT(int id)
+    public async Task<ActionResult<BookingResponseDTO>> CheckOut(int id)
     {
         var booking = await _bookingService.CheckOutAsync(id);
         if (booking is null)

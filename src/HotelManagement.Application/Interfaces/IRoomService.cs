@@ -1,5 +1,4 @@
 using HotelManagement.Application.DTOs.Rooms;
-using HotelManagement.Domain.Entities;
 
 namespace HotelManagement.Application.Interfaces;
 
@@ -9,9 +8,11 @@ public interface IRoomService
 
     Task<RoomResponseDto?> GetRoomByIdAsync(int id);
 
-    Task AddRoomAsync(CreateRoomDTO room);
+    Task<RoomResponseDto> AddRoomAsync(CreateRoomDTO dto);
 
-    Task UpdateRoomAsync(int id,UpdateRoomDto room);
+    Task<RoomResponseDto?> UpdateRoomAsync(int id, UpdateRoomDto dto);
 
-    Task DeleteRoomAsync(int id);
+    Task<bool> DeleteRoomAsync(int id);
+
+    Task<IEnumerable<RoomResponseDto>> GetAvailableRoomsAsync(DateTime checkInDate, DateTime checkOutDate);
 }

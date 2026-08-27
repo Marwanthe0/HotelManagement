@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace HotelManagement.API.Exceptions;
 
@@ -22,19 +23,43 @@ public class GlobalExceptionHandler : IExceptionHandler
             exception,
             "An unhandled exception occurred.");
 
+        // A unique index violation means a concurrent request already inserted the same
+        // value (duplicate RoomNumber / Email). Report it as a conflict rather than a 500.
+        var isDuplicateKey = exception is DbUpdateException dbUpdateException
+            && IsUniqueConstraintViolation(dbUpdateException);
+
         var statusCode = exception switch
         {
+            _ when isDuplicateKey => StatusCodes.Status409Conflict,
             InvalidOperationException => StatusCodes.Status400BadRequest,
+            ArgumentException => StatusCodes.Status400BadRequest,
+            KeyNotFoundException => StatusCodes.Status404NotFound,
             _ => StatusCodes.Status500InternalServerError
+        };
+
+        var title = statusCode switch
+        {
+            StatusCodes.Status400BadRequest => "Bad Request",
+            StatusCodes.Status404NotFound => "Not Found",
+            StatusCodes.Status409Conflict => "Conflict",
+            _ => "Internal Server Error"
+        };
+
+        // Never leak internal details (stack traces, SQL, provider messages) to clients.
+        var detail = statusCode switch
+        {
+            StatusCodes.Status409Conflict =>
+                "The value you supplied conflicts with an existing record.",
+            StatusCodes.Status500InternalServerError =>
+                "An unexpected error occurred while processing your request.",
+            _ => exception.Message
         };
 
         var response = new ProblemDetails
         {
             Status = statusCode,
-            Title = statusCode == StatusCodes.Status400BadRequest
-                ? "Bad Request"
-                : "Internal Server Error",
-            Detail = exception.Message
+            Title = title,
+            Detail = detail
         };
 
         httpContext.Response.StatusCode = statusCode;
@@ -44,5 +69,17 @@ public class GlobalExceptionHandler : IExceptionHandler
             cancellationToken);
 
         return true;
+    }
+
+    // SQL Server reports unique index/constraint violations as error 2601/2627.
+    private static bool IsUniqueConstraintViolation(DbUpdateException exception)
+    {
+        var message = exception.InnerException?.Message;
+
+        return message is not null
+            && (message.Contains("duplicate key", StringComparison.OrdinalIgnoreCase)
+                || message.Contains("UNIQUE KEY", StringComparison.OrdinalIgnoreCase)
+                || message.Contains("2601")
+                || message.Contains("2627"));
     }
 }

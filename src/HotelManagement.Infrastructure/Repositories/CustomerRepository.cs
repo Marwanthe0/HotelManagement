@@ -19,17 +19,30 @@ public class CustomerRepository : ICustomerRepository
         return await _context.Customers.ToListAsync();
     }
 
+    public async Task<IEnumerable<Customer>> SearchAsync(string search)
+    {
+        return await _context.Customers
+            .Where(c =>
+                c.FirstName.Contains(search)
+                || c.LastName.Contains(search)
+                || c.Email.Contains(search)
+                || c.Phone.Contains(search))
+            .ToListAsync();
+    }
+
     public async Task<Customer?> GetByIdAsync(int id)
     {
         return await _context.Customers
             .FirstOrDefaultAsync(c => c.Id == id);
     }
 
-    public async Task<bool> ExistsByEmailAsync(string email)
+    public async Task<bool> ExistsByEmailAsync(string email, int? excludeCustomerId = null)
     {
         return await _context.Customers
-            .AnyAsync(c => c.Email == email);
+            .AnyAsync(c => c.Email == email
+                && (!excludeCustomerId.HasValue || c.Id != excludeCustomerId.Value));
     }
+
 
     public async Task AddAsync(Customer customer)
     {

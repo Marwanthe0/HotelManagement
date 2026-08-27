@@ -7,42 +7,33 @@ namespace HotelManagement.Application.Services;
 public class CustomerService:ICustomerService
 {
     private readonly ICustomerRepository _customerRepository;
-    
-    public CustomerService(ICustomerRepository customerRepository)
+    private readonly IBookingRepository _bookingRepository;
+
+    public CustomerService(
+        ICustomerRepository customerRepository,
+        IBookingRepository bookingRepository)
     {
         _customerRepository = customerRepository;
+        _bookingRepository = bookingRepository;
     }
 
-    public async Task<IEnumerable<CustomerResponseDTO>> GetAllAsync()
+    public async Task<IEnumerable<CustomerResponseDTO>> GetAllAsync(string? search = null)
     {
-        var customers = await _customerRepository.GetAllAsync();
+        var customers = string.IsNullOrWhiteSpace(search)
+            ? await _customerRepository.GetAllAsync()
+            : await _customerRepository.SearchAsync(search.Trim());
 
-        return customers.Select(c=>new CustomerResponseDTO
-        {
-            Id = c.Id,
-            FirstName = c.FirstName,
-            LastName = c.LastName,
-            Email = c.Email,
-            Phone = c.Phone,
-            Address = c.Address
-        });
+        return customers.Select(c => MapToResponseDTO(c));
     }
+
 
     public async Task<CustomerResponseDTO?> GetByIdAsync(int id)
     {
         var customer = await _customerRepository.GetByIdAsync(id);
 
         if(customer is null) return null;
-        
-        return new CustomerResponseDTO
-        {
-            Id = customer.Id,
-            FirstName = customer.FirstName,
-            LastName = customer.LastName,
-            Email = customer.Email,
-            Phone = customer.Phone,
-            Address = customer.Address
-        };
+
+        return MapToResponseDTO(customer);
     }
 
     public async Task<CustomerResponseDTO> CreateAsync(CreateCustomerDTO dto)
@@ -62,36 +53,51 @@ public class CustomerService:ICustomerService
         };
         
         await _customerRepository.AddAsync(customer);
-        return new CustomerResponseDTO
-        {
-            Id = customer.Id,
-            FirstName = customer.FirstName,
-            LastName = customer.LastName,
-            Email = customer.Email,
-            Phone = customer.Phone,
-            Address = customer.Address     
-        };
+
+        return MapToResponseDTO(customer);
     }
 
     public async Task<CustomerResponseDTO?> UpdateAsync(int id,UpdateCustomerDTO dto)
     {
         var customer = await _customerRepository.GetByIdAsync(id);
         if(customer is null) return null;
-        
-        if(customer.Email != dto.Email)
+
+        var emailExists = await _customerRepository.ExistsByEmailAsync(dto.Email, id);
+        if(emailExists)
         {
-            var emailExists = await _customerRepository.ExistsByEmailAsync(dto.Email);
-            if(emailExists)
-            {
-                throw new InvalidOperationException("A customer with this email already exists.");
-            }
+            throw new InvalidOperationException("A customer with this email already exists.");
         }
+
         customer.FirstName = dto.FirstName;
         customer.LastName = dto.LastName;
         customer.Email = dto.Email;
         customer.Phone = dto.Phone;
         customer.Address = dto.Address;
         await _customerRepository.UpdateAsync(customer);
+
+        return MapToResponseDTO(customer);
+    }
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var customer = await _customerRepository.GetByIdAsync(id);
+        if(customer is null) return false;
+
+        // Bookings use DeleteBehavior.Restrict, so deleting a customer that still has
+        // booking history would fail at the database level. Reject it with a clear
+        // business error instead of surfacing a raw database exception.
+        var hasBookings = await _bookingRepository.HasBookingsForCustomerAsync(id);
+        if (hasBookings)
+        {
+            throw new InvalidOperationException(
+                "Cannot delete customer because they have existing bookings.");
+        }
+
+        await _customerRepository.DeleteAsync(customer);
+        return true;
+    }
+
+    private static CustomerResponseDTO MapToResponseDTO(Customer customer)
+    {
         return new CustomerResponseDTO
         {
             Id = customer.Id,
@@ -102,11 +108,6 @@ public class CustomerService:ICustomerService
             Address = customer.Address
         };
     }
-    public async Task<bool> DeleteAsync(int id)
-    {
-        var customer = await _customerRepository.GetByIdAsync(id);
-        if(customer is null) return false;
-        await _customerRepository.DeleteAsync(customer);
-        return true;
-    }
 }
+
+

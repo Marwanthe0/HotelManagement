@@ -21,15 +21,7 @@ public class PaymentService : IPaymentService
     public async Task<IEnumerable<PaymentResponseDTO>> GetAllPaymentsAsync()
     {
         var payments = await _paymentRepository.GetAllAsync();
-        return payments.Select(payment => new PaymentResponseDTO
-        {
-            Id = payment.Id,
-            BookingId = payment.BookingId,
-            Amount = payment.Amount,
-            PaymentDate = payment.PaymentDate,
-            PaymentMethod = payment.PaymentMethod,
-            PaymentStatus = payment.PaymentStatus,
-        });
+        return payments.Select(payment => MapToResponseDTO(payment));
     }
 
     public async Task<PaymentResponseDTO?> GetPaymentByIdAsync(int id)
@@ -38,49 +30,59 @@ public class PaymentService : IPaymentService
         if (payment is null)
             return null;
 
-        return new PaymentResponseDTO
-        {
-            Id = payment.Id,
-            BookingId = payment.BookingId,
-            Amount = payment.Amount,
-            PaymentDate = payment.PaymentDate,
-            PaymentMethod = payment.PaymentMethod,
-            PaymentStatus = payment.PaymentStatus,
-        };
+        return MapToResponseDTO(payment);
     }
 
     public async Task<IEnumerable<PaymentResponseDTO>> GetPaymentsByBookingIdAsync(int bookingId)
     {
         var payments = await _paymentRepository.GetByBookingIdAsync(bookingId);
-        return payments.Select(payment => new PaymentResponseDTO
-        {
-            Id = payment.Id,
-            BookingId = payment.BookingId,
-            Amount = payment.Amount,
-            PaymentDate = payment.PaymentDate,
-            PaymentMethod = payment.PaymentMethod,
-            PaymentStatus = payment.PaymentStatus,
-        });
+        return payments.Select(payment => MapToResponseDTO(payment));
     }
+
 
     public async Task<PaymentResponseDTO> CreatePaymentAsync(CreatePaymentDTO dto)
     {
+        // 1. Booking must exist.
         var booking = await _bookingRepository.GetByIdAsync(dto.BookingId);
         if (booking is null)
         {
             throw new InvalidOperationException("Booking with this Id not Found.");
         }
+
+        // 2. Amount must be greater than zero.
         if (dto.Amount <= 0)
         {
             throw new ArgumentException("Payment amount must be greater than Zero.");
         }
 
-        var existingPayments = await _paymentRepository.GetByBookingIdAsync(dto.BookingId);
-        var totalPaidAmount = existingPayments
-            .Where(p => p.PaymentStatus == "Paid")
-            .Sum(p => p.Amount);
+        // 3. Payment method is required.
+        if (string.IsNullOrWhiteSpace(dto.PaymentMethod))
+        {
+            throw new ArgumentException("Payment method is required.");
+        }
 
+        // 4. A cancelled booking must not accept new payments.
+        if (booking.Status == "Cancelled")
+        {
+            throw new InvalidOperationException(
+                "Cannot record a payment for a cancelled booking."
+            );
+        }
+
+        // 5. Calculate the total already-paid amount using successful payments.
+        var totalPaidAmount = await _paymentRepository.GetPaidAmountByBookingIdAsync(
+            dto.BookingId
+        );
+
+        // 6. New payment cannot exceed the remaining amount.
         var remainingAmount = booking.TotalAmount - totalPaidAmount;
+
+        if (remainingAmount <= 0)
+        {
+            throw new InvalidOperationException(
+                "This booking is already fully paid."
+            );
+        }
 
         if (dto.Amount > remainingAmount)
         {
@@ -89,29 +91,18 @@ public class PaymentService : IPaymentService
             );
         }
 
-        if (string.IsNullOrWhiteSpace(dto.PaymentMethod))
-        {
-            throw new ArgumentException("Payment method is required.");
-        }
         var payment = new Payment
         {
             BookingId = dto.BookingId,
             Amount = dto.Amount,
-            PaymentMethod = dto.PaymentMethod,
+            PaymentMethod = dto.PaymentMethod.Trim(),
             PaymentDate = DateTime.UtcNow,
             PaymentStatus = "Paid",
         };
-        var CreatedPayment = await _paymentRepository.CreateAsync(payment);
 
-        return new PaymentResponseDTO
-        {
-            Id = CreatedPayment.Id,
-            BookingId = CreatedPayment.BookingId,
-            Amount = CreatedPayment.Amount,
-            PaymentDate = CreatedPayment.PaymentDate,
-            PaymentMethod = CreatedPayment.PaymentMethod,
-            PaymentStatus = CreatedPayment.PaymentStatus,
-        };
+        var createdPayment = await _paymentRepository.CreateAsync(payment);
+
+        return MapToResponseDTO(createdPayment);
     }
 
     public async Task<PaymentSummaryDTO?> GetPaymentSummaryAsync(int bookingId)
@@ -120,9 +111,8 @@ public class PaymentService : IPaymentService
 
         if (booking is null)
             return null;
-        var payments = await _paymentRepository.GetByBookingIdAsync(bookingId);
 
-        var paidAmount = payments.Where(p => p.PaymentStatus == "Paid").Sum(p => p.Amount);
+        var paidAmount = await _paymentRepository.GetPaidAmountByBookingIdAsync(bookingId);
 
         var remainingAmount = booking.TotalAmount - paidAmount;
         string paymentStatus;
@@ -143,4 +133,19 @@ public class PaymentService : IPaymentService
             PaymentStatus = paymentStatus,
         };
     }
+
+    private static PaymentResponseDTO MapToResponseDTO(Payment payment)
+    {
+        return new PaymentResponseDTO
+        {
+            Id = payment.Id,
+            BookingId = payment.BookingId,
+            Amount = payment.Amount,
+            PaymentDate = payment.PaymentDate,
+            PaymentMethod = payment.PaymentMethod,
+            PaymentStatus = payment.PaymentStatus,
+        };
+    }
 }
+
+

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HotelManagement.Infrastructure.Data;
 
-public class HotelDbContext: DbContext
+public class HotelDbContext : DbContext
 {
     public HotelDbContext(DbContextOptions<HotelDbContext> options) : base(options)
     {
@@ -22,7 +22,7 @@ public class HotelDbContext: DbContext
 
 
         /*--------Setting Precision For Decimal Values----------*/
-        
+
         modelBuilder.Entity<Room>()
         .Property(r => r.PricePerNight)
         .HasPrecision(18, 2);
@@ -31,7 +31,7 @@ public class HotelDbContext: DbContext
         .Property(b => b.TotalAmount)
         .HasPrecision(18, 2);
 
-        
+
         modelBuilder.Entity<Payment>()
         .Property(p => p.Amount)
         .HasPrecision(18, 2);
@@ -40,29 +40,45 @@ public class HotelDbContext: DbContext
         modelBuilder.Entity<Employee>()
         .Property(e => e.Salary)
         .HasPrecision(18, 2);
-        
+
+        /*--------Setting Indexes----------*/
+
+        modelBuilder.Entity<Room>()
+        .HasIndex(r => r.RoomNumber)
+        .IsUnique();
+
+        modelBuilder.Entity<Customer>()
+        .HasIndex(c => c.Email)
+        .IsUnique();
+
+        modelBuilder.Entity<Employee>()
+        .HasIndex(e => e.Email)
+        .IsUnique();
+
         /*--------Setting Relationship Between Tables------------*/
-        
+
         //Customer <--> Booking Relationship
         //One Customer  ---> Many Booking
         modelBuilder.Entity<Booking>()
         .HasOne(b => b.Customer)
-        .WithMany(c=>c.Bookings)
-        .HasForeignKey(b => b.CustomerId);
+        .WithMany(c => c.Bookings)
+        .HasForeignKey(b => b.CustomerId)
+        .OnDelete(DeleteBehavior.Restrict);
 
         //Room <--> Booking Relationship
         //One Room ---> Many Bookings
         modelBuilder.Entity<Booking>()
         .HasOne(b => b.Room)
         .WithMany()
-        .HasForeignKey(b => b.RoomId);
+        .HasForeignKey(b => b.RoomId)
+        .OnDelete(DeleteBehavior.Restrict);
 
         // Booking <--> Payment Relationship
         //One Booking ---> Many Payments
-
         modelBuilder.Entity<Payment>()
         .HasOne(p => p.Booking)
         .WithMany()
-        .HasForeignKey(p => p.BookingId);
+        .HasForeignKey(p => p.BookingId)
+        .OnDelete(DeleteBehavior.Restrict);
     }
 }

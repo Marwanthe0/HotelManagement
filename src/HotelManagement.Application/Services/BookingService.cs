@@ -1,6 +1,4 @@
-using HotelManagement.Application.DTOs;
 using HotelManagement.Application.DTOs.Bookings;
-using HotelManagement.Application.DTOs.Rooms;
 using HotelManagement.Application.Interfaces;
 using HotelManagement.Domain.Entities;
 
@@ -11,34 +9,30 @@ public class BookingService : IBookingService
     private readonly IBookingRepository _bookingRepository;
     private readonly ICustomerRepository _customerRepository;
     private readonly IRoomRepository _roomRepository;
+    private readonly IPaymentRepository _paymentRepository;
 
     public BookingService(
         IBookingRepository bookingRepository,
         ICustomerRepository customerRepository,
-        IRoomRepository roomRepository
+        IRoomRepository roomRepository,
+        IPaymentRepository paymentRepository
     )
     {
         _bookingRepository = bookingRepository;
         _customerRepository = customerRepository;
         _roomRepository = roomRepository;
+        _paymentRepository = paymentRepository;
     }
 
-    public async Task<IEnumerable<BookingResponseDTO>> GetAllAsync()
+    public async Task<IEnumerable<BookingResponseDTO>> GetAllAsync(string? status = null)
     {
-        var bookings = await _bookingRepository.GetAllAsync();
+        var bookings = string.IsNullOrWhiteSpace(status)
+            ? await _bookingRepository.GetAllAsync()
+            : await _bookingRepository.GetByStatusAsync(NormalizeStatus(status));
 
-        return bookings.Select(b => new BookingResponseDTO
-        {
-            Id = b.Id,
-            CustomerId = b.CustomerId,
-            RoomId = b.RoomId,
-            CheckInDate = b.CheckInDate,
-            CheckOutDate = b.CheckOutDate,
-            BookingDate = b.BookingDate,
-            Status = b.Status,
-            TotalAmount = b.TotalAmount,
-        });
+        return bookings.Select(b => MapToResponseDTO(b));
     }
+
 
     public async Task<BookingResponseDTO?> GetByIdAsync(int id)
     {
@@ -46,17 +40,8 @@ public class BookingService : IBookingService
 
         if (booking is null)
             return null;
-        return new BookingResponseDTO
-        {
-            Id = booking.Id,
-            CustomerId = booking.CustomerId,
-            RoomId = booking.RoomId,
-            CheckInDate = booking.CheckInDate,
-            CheckOutDate = booking.CheckOutDate,
-            BookingDate = booking.BookingDate,
-            Status = booking.Status,
-            TotalAmount = booking.TotalAmount,
-        };
+
+        return MapToResponseDTO(booking);
     }
 
     public async Task<BookingResponseDTO> CreateAsync(CreateBookingDTO dto)
@@ -97,9 +82,12 @@ public class BookingService : IBookingService
             );
         }
 
-        // 5. Caculating Payments
-        var numberOfNights = (dto.CheckOutDate - dto.CheckInDate).Days;
-        var totalAmount = numberOfNights * room.PricePerNight;
+        // 5. Calculating Total Amount (server-side, never trust the client)
+        var totalAmount = CalculateTotalAmount(
+            dto.CheckInDate,
+            dto.CheckOutDate,
+            room.PricePerNight
+        );
 
         var booking = new Booking
         {
@@ -111,19 +99,10 @@ public class BookingService : IBookingService
             Status = "Pending",
             TotalAmount = totalAmount,
         };
+
         await _bookingRepository.AddAsync(booking);
 
-        return new BookingResponseDTO
-        {
-            Id = booking.Id,
-            CustomerId = booking.CustomerId,
-            RoomId = booking.RoomId,
-            CheckInDate = booking.CheckInDate,
-            CheckOutDate = booking.CheckOutDate,
-            BookingDate = booking.BookingDate,
-            Status = booking.Status,
-            TotalAmount = booking.TotalAmount,
-        };
+        return MapToResponseDTO(booking);
     }
 
     public async Task<BookingResponseDTO?> UpdateAsync(int id, UpdateBookingDTO dto)
@@ -132,6 +111,15 @@ public class BookingService : IBookingService
 
         if (booking is null)
             return null;
+
+        // A booking may only be rescheduled while it is still Pending or Confirmed.
+        // Changing dates/room after check-in, check-out or cancellation is not meaningful.
+        if (booking.Status != "Pending" && booking.Status != "Confirmed")
+        {
+            throw new InvalidOperationException(
+                $"A booking with status '{booking.Status}' can no longer be updated."
+            );
+        }
 
         if (dto.CheckInDate >= dto.CheckOutDate)
             throw new InvalidOperationException("Check-out date must be after check-in date.");
@@ -152,26 +140,31 @@ public class BookingService : IBookingService
                 "The Room is not available for the selected dates."
             );
 
-        var numberOfNights = (dto.CheckOutDate - dto.CheckInDate).Days;
+        // Recalculate the total from the room price and nights (never trust the client).
+        var newTotalAmount = CalculateTotalAmount(
+            dto.CheckInDate,
+            dto.CheckOutDate,
+            room.PricePerNight
+        );
+
+        // Payments are immutable, so the new total must never drop below what is already paid.
+        var paidAmount = await _paymentRepository.GetPaidAmountByBookingIdAsync(id);
+        if (newTotalAmount < paidAmount)
+        {
+            throw new InvalidOperationException(
+                $"The new total amount ({newTotalAmount}) cannot be less than the amount "
+                    + $"already paid ({paidAmount}) for this booking."
+            );
+        }
 
         booking.RoomId = dto.RoomId;
         booking.CheckInDate = dto.CheckInDate;
         booking.CheckOutDate = dto.CheckOutDate;
-        booking.TotalAmount = numberOfNights * room.PricePerNight;
+        booking.TotalAmount = newTotalAmount;
 
         await _bookingRepository.UpdateAsync(booking);
 
-        return new BookingResponseDTO
-        {
-            Id = booking.Id,
-            CustomerId = booking.CustomerId,
-            RoomId = booking.RoomId,
-            CheckInDate = booking.CheckInDate,
-            CheckOutDate = booking.CheckOutDate,
-            BookingDate = booking.BookingDate,
-            Status = booking.Status,
-            TotalAmount = booking.TotalAmount,
-        };
+        return MapToResponseDTO(booking);
     }
 
     public async Task<bool> DeleteAsync(int id)
@@ -181,9 +174,21 @@ public class BookingService : IBookingService
         if (booking is null)
             return false;
 
+        // Payments use DeleteBehavior.Restrict and represent financial history, so a booking
+        // that already has payment records must not be deleted. Cancel it instead.
+        var hasPayments = await _paymentRepository.HasPaymentsForBookingAsync(id);
+        if (hasPayments)
+        {
+            throw new InvalidOperationException(
+                "Cannot delete a booking that has payment records. Cancel the booking instead "
+                    + "so the financial history is preserved."
+            );
+        }
+
         await _bookingRepository.DeleteAsync(booking);
         return true;
     }
+
 
     public async Task<BookingResponseDTO?> ConfirmAsync(int id)
     {
@@ -198,17 +203,7 @@ public class BookingService : IBookingService
 
         await _bookingRepository.UpdateAsync(booking);
 
-        return new BookingResponseDTO
-        {
-            Id = booking.Id,
-            CustomerId = booking.CustomerId,
-            RoomId = booking.RoomId,
-            CheckInDate = booking.CheckInDate,
-            CheckOutDate = booking.CheckOutDate,
-            BookingDate = booking.BookingDate,
-            Status = booking.Status,
-            TotalAmount = booking.TotalAmount,
-        };
+        return MapToResponseDTO(booking);
     }
 
     public async Task<BookingResponseDTO?> CancelAsync(int id)
@@ -229,17 +224,7 @@ public class BookingService : IBookingService
 
         await _bookingRepository.UpdateAsync(booking);
 
-        return new BookingResponseDTO
-        {
-            Id = booking.Id,
-            CustomerId = booking.CustomerId,
-            RoomId = booking.RoomId,
-            CheckInDate = booking.CheckInDate,
-            CheckOutDate = booking.CheckOutDate,
-            BookingDate = booking.BookingDate,
-            Status = booking.Status,
-            TotalAmount = booking.TotalAmount,
-        };
+        return MapToResponseDTO(booking);
     }
 
     public async Task<BookingResponseDTO?> CheckInAsync(int id)
@@ -256,17 +241,7 @@ public class BookingService : IBookingService
         booking.Status = "CheckedIn";
         await _bookingRepository.UpdateAsync(booking);
 
-        return new BookingResponseDTO
-        {
-            Id = booking.Id,
-            CustomerId = booking.CustomerId,
-            RoomId = booking.RoomId,
-            CheckInDate = booking.CheckInDate,
-            CheckOutDate = booking.CheckOutDate,
-            BookingDate = booking.BookingDate,
-            Status = booking.Status,
-            TotalAmount = booking.TotalAmount,
-        };
+        return MapToResponseDTO(booking);
     }
 
     public async Task<BookingResponseDTO?> CheckOutAsync(int id)
@@ -277,12 +252,75 @@ public class BookingService : IBookingService
 
         if (booking.Status != "CheckedIn")
         {
-            throw new InvalidOperationException("Only checked-in bookings can be checked in.");
+            throw new InvalidOperationException("Only checked-in bookings can be checked out.");
+        }
+
+        // Check if payment is fully completed before checkout
+        var paidAmount = await _paymentRepository.GetPaidAmountByBookingIdAsync(id);
+        var remainingAmount = booking.TotalAmount - paidAmount;
+
+
+        if (remainingAmount > 0)
+        {
+            throw new InvalidOperationException(
+                $"Payment is not fully completed. Remaining amount: {remainingAmount}."
+            );
         }
 
         booking.Status = "CheckedOut";
         await _bookingRepository.UpdateAsync(booking);
 
+        return MapToResponseDTO(booking);
+    }
+
+    public async Task<IEnumerable<BookingResponseDTO>> GetByCustomerIdAsync(int customerId)
+    {
+        var bookings = await _bookingRepository.GetByCustomerIdAsync(customerId);
+
+        return bookings.Select(b => MapToResponseDTO(b));
+    }
+
+    /// <summary>
+    /// Calculates the booking total as numberOfNights * pricePerNight.
+    /// Only the date component matters because check-in/check-out are business dates,
+    /// so a stray time component cannot silently reduce the number of billed nights.
+    /// </summary>
+    private static decimal CalculateTotalAmount(
+        DateTime checkInDate,
+        DateTime checkOutDate,
+        decimal pricePerNight
+    )
+    {
+        var numberOfNights = (checkOutDate.Date - checkInDate.Date).Days;
+
+        // Same-day bookings with a later check-out time still count as one night.
+        if (numberOfNights <= 0)
+            numberOfNights = 1;
+
+        return numberOfNights * pricePerNight;
+    }
+
+    /// <summary>
+    /// Maps an incoming status filter onto the exact status string used by the project,
+    /// so that "confirmed", "CONFIRMED" and "checkedout" all work from a query string.
+    /// Unknown values are passed through and simply return no results.
+    /// </summary>
+    private static string NormalizeStatus(string status)
+    {
+        return status.Trim().ToLowerInvariant() switch
+        {
+            "pending" => "Pending",
+            "confirmed" => "Confirmed",
+            "cancelled" or "canceled" => "Cancelled",
+            "checkedin" or "checked-in" => "CheckedIn",
+            "checkedout" or "checked-out" => "CheckedOut",
+            _ => status.Trim(),
+        };
+    }
+
+    private static BookingResponseDTO MapToResponseDTO(Booking booking)
+
+    {
         return new BookingResponseDTO
         {
             Id = booking.Id,
@@ -294,22 +332,5 @@ public class BookingService : IBookingService
             Status = booking.Status,
             TotalAmount = booking.TotalAmount,
         };
-    }
-
-    public async Task<IEnumerable<BookingResponseDTO>> GetByCustomerIdAsync(int customerId)
-    {
-        var bookings = await _bookingRepository.GetByCustomerIdAsync(customerId);
-
-        return bookings.Select(b => new BookingResponseDTO
-        {
-            Id = b.Id,
-            CustomerId = b.CustomerId,
-            RoomId = b.RoomId,
-            CheckInDate = b.CheckInDate,
-            CheckOutDate = b.CheckOutDate,
-            BookingDate = b.BookingDate,
-            Status = b.Status,
-            TotalAmount = b.TotalAmount,
-        });
     }
 }

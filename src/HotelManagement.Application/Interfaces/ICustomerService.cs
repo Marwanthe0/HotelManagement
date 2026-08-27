@@ -4,7 +4,8 @@ namespace HotelManagement.Application.Interfaces;
 
 public interface ICustomerService
 {
-    Task<IEnumerable<CustomerResponseDTO>> GetAllAsync();
+    Task<IEnumerable<CustomerResponseDTO>> GetAllAsync(string? search = null);
+
 
     Task<CustomerResponseDTO?> GetByIdAsync(int id);
 
