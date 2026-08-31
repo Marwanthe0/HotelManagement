@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -9,6 +10,7 @@ import {
   UserCog,
   LogOut,
 } from 'lucide-react';
+import ProfileModal from '../profile/ProfileModal';
 import './Sidebar.css';
 
 const navItems = [
@@ -23,8 +25,10 @@ const navItems = [
 export default function Sidebar({ open, onClose }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
-  function handleLogout() {
+  function handleLogout(e) {
+    e.stopPropagation();
     logout();
     navigate('/login');
   }
@@ -78,8 +82,16 @@ export default function Sidebar({ open, onClose }) {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="sidebar-user">
-            <div className="sidebar-avatar">{initial}</div>
+          <div
+            className="sidebar-user clickable"
+            onClick={() => setProfileModalOpen(true)}
+            title="View & Edit Profile"
+          >
+            {user?.profilePictureUrl ? (
+              <img src={user.profilePictureUrl} alt="Avatar" className="sidebar-avatar-img" />
+            ) : (
+              <div className="sidebar-avatar">{initial}</div>
+            )}
             <div className="sidebar-user-info">
               <div className="sidebar-user-name">{user?.username}</div>
               <div className="sidebar-user-role">{user?.role}</div>
@@ -94,6 +106,11 @@ export default function Sidebar({ open, onClose }) {
           </div>
         </div>
       </aside>
+
+      <ProfileModal
+        open={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+      />
     </>
   );
 }

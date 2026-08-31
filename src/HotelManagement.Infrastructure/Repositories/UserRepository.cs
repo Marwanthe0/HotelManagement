@@ -14,6 +14,11 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
+    public async Task<User?> GetByIdAsync(int id)
+    {
+        return await _context.Users.FindAsync(id);
+    }
+
     public async Task<User?> GetByEmailAsync(string email)
     {
         return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
@@ -24,14 +29,21 @@ public class UserRepository : IUserRepository
         return await _context.Users.AnyAsync(u => u.Email == email);
     }
 
-    public async Task<bool> ExistsByUsernameAsync(string username)
+    public async Task<bool> ExistsByUsernameAsync(string username, int? excludeUserId = null)
     {
-        return await _context.Users.AnyAsync(u => u.Username == username);
+        return await _context.Users.AnyAsync(u =>
+            u.Username == username && (!excludeUserId.HasValue || u.Id != excludeUserId.Value));
     }
 
     public async Task AddAsync(User user)
     {
         await _context.Users.AddAsync(user);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateAsync(User user)
+    {
+        _context.Users.Update(user);
         await _context.SaveChangesAsync();
     }
 }

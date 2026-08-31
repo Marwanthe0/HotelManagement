@@ -54,6 +54,8 @@ public class AuthService : IAuthService
             Email = normalizedEmail,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
             Role = string.IsNullOrWhiteSpace(dto.Role) ? "Staff" : dto.Role.Trim(),
+            PhoneNumber = dto.PhoneNumber?.Trim() ?? string.Empty,
+            Address = dto.Address?.Trim() ?? string.Empty,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -95,6 +97,9 @@ public class AuthService : IAuthService
             Username = user.Username,
             Email = user.Email,
             Role = user.Role,
+            PhoneNumber = user.PhoneNumber,
+            Address = user.Address,
+            ProfilePictureUrl = user.ProfilePictureUrl,
             ExpiresAt = expiresAt
         };
     }

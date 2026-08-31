@@ -12,6 +12,8 @@ export default function Register() {
     email: '',
     password: '',
     role: 'Staff',
+    phoneNumber: '',
+    address: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,7 +27,14 @@ export default function Register() {
     setError('');
     setLoading(true);
     try {
-      await register(form.username, form.email, form.password, form.role);
+      await register(
+        form.username,
+        form.email,
+        form.password,
+        form.role,
+        form.phoneNumber,
+        form.address
+      );
       navigate('/');
     } catch (err) {
       const msg = err.response?.data?.detail
@@ -102,9 +111,33 @@ export default function Register() {
             </select>
           </div>
 
+          <div className="form-group">
+            <label className="form-label" htmlFor="reg-phone">Phone Number</label>
+            <input
+              id="reg-phone"
+              className="form-input"
+              type="tel"
+              placeholder="+1 (555) 000-0000"
+              value={form.phoneNumber}
+              onChange={(e) => update('phoneNumber', e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="reg-address">Address</label>
+            <input
+              id="reg-address"
+              className="form-input"
+              type="text"
+              placeholder="13th Raven Way, Arkham"
+              value={form.address}
+              onChange={(e) => update('address', e.target.value)}
+            />
+          </div>
+
           <button className="btn btn-primary" type="submit" disabled={loading}>
             <UserPlus size={16} />
-            {loading ? 'Creating account…' : 'Create Account'}
+            {loading ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
 

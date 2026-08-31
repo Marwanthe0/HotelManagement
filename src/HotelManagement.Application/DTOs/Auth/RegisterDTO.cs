@@ -19,4 +19,10 @@ public class RegisterDTO
 
     [StringLength(20)]
     public string Role { get; set; } = "Staff";
+
+    [StringLength(20)]
+    public string PhoneNumber { get; set; } = string.Empty;
+
+    [StringLength(200)]
+    public string Address { get; set; } = string.Empty;
 }

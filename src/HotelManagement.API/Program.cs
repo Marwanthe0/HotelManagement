@@ -112,6 +112,9 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 // Dashboard Service
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 
+// Profile Service
+builder.Services.AddScoped<IProfileService, ProfileService>();
+
 var app = builder.Build();
 
 app.UseExceptionHandler();
