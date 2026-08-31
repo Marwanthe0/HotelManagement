@@ -1,0 +1,9 @@
+.customers-search {
+  display: flex;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.customers-search .form-input {
+  max-width: 320px;
+}

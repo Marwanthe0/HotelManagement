@@ -1,0 +1,38 @@
+.booking-actions-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.booking-amount {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+
+.booking-dates {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.booking-dates span {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.booking-ids {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.booking-ids span:first-child {
+  font-weight: 500;
+}
+
+.booking-ids span:last-child {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
