@@ -58,16 +58,6 @@ public class BookingsController : ControllerBase
         return Ok(booking);
     }
 
-    //PATCH /api/bookings/{id}/confirm
-    [HttpPatch("{id:int}/confirm")]
-    public async Task<ActionResult<BookingResponseDTO>> Confirm(int id)
-    {
-        var booking = await _bookingService.ConfirmAsync(id);
-        if (booking is null)
-            return NotFound();
-        return Ok(booking);
-    }
-
     //PATCH /api/bookings/{id}/cancel
     [HttpPatch("{id:int}/cancel")]
     public async Task<ActionResult<BookingResponseDTO>> Cancel(int id)

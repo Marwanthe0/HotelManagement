@@ -102,6 +102,15 @@ public class PaymentService : IPaymentService
 
         var createdPayment = await _paymentRepository.CreateAsync(payment);
 
+        // Auto-confirm: when the booking is fully paid and still Pending,
+        // promote it to Confirmed so the guest can check in.
+        var updatedPaidAmount = await _paymentRepository.GetPaidAmountByBookingIdAsync(dto.BookingId);
+        if (updatedPaidAmount >= booking.TotalAmount && booking.Status == "Pending")
+        {
+            booking.Status = "Confirmed";
+            await _bookingRepository.UpdateAsync(booking);
+        }
+
         return MapToResponseDTO(createdPayment);
     }
 

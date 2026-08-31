@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
-  Plus, Trash2, Check, X as XIcon,
+  Plus, Trash2, X as XIcon,
   LogIn as LogInIcon, LogOut as LogOutIcon,
 } from 'lucide-react';
 import api from '../api/axios';
@@ -118,14 +118,24 @@ export default function Bookings() {
     return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
+  // Build lookup maps so the table can display names instead of raw IDs
+  const customerMap = {};
+  for (const c of customers) {
+    customerMap[c.id] = `${c.firstName} ${c.lastName}`;
+  }
+  const roomMap = {};
+  for (const r of rooms) {
+    roomMap[r.id] = r.roomNumber;
+  }
+
   const columns = [
     { key: 'id', label: 'ID', render: (b) => (
       <span className="font-medium">#{b.id}</span>
     )},
     { key: 'ids', label: 'Customer / Room', render: (b) => (
       <div className="booking-ids">
-        <span>Customer #{b.customerId}</span>
-        <span>Room #{b.roomId}</span>
+        <span>Customer:{b.customerId} {customerMap[b.customerId] || ''}</span>
+        <span>Room:{b.roomId} {roomMap[b.roomId] ? `(${roomMap[b.roomId]})` : ''}</span>
       </div>
     )},
     { key: 'dates', label: 'Dates', render: (b) => (
@@ -142,12 +152,6 @@ export default function Bookings() {
     )},
     { key: 'actions', label: '', style: { width: 160 }, render: (b) => (
       <div className="booking-actions-cell">
-        {b.status === 'Pending' && (
-          <button className="btn btn-success btn-sm"
-            onClick={() => handleAction(b.id, 'confirm', 'confirmed')} title="Confirm">
-            <Check size={13} /> Confirm
-          </button>
-        )}
         {b.status === 'Confirmed' && (
           <button className="btn btn-sm" style={{ background: 'rgba(139,92,246,0.12)', color: '#8b5cf6', border: '1px solid rgba(139,92,246,0.2)' }}
             onClick={() => handleAction(b.id, 'check-in', 'checked in')} title="Check In">
@@ -163,7 +167,7 @@ export default function Bookings() {
         {(b.status === 'Pending' || b.status === 'Confirmed') && (
           <button className="btn btn-danger btn-sm"
             onClick={() => handleAction(b.id, 'cancel', 'cancelled')} title="Cancel">
-            <XIcon size={13} />
+            <XIcon size={13} /> Cancel
           </button>
         )}
         {b.status === 'Pending' && (
