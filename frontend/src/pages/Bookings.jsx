@@ -114,7 +114,7 @@ export default function Bookings() {
   }
 
   function formatDate(d) {
-    if (!d) return '—';
+    if (!d) return 'N/A';
     return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
@@ -134,8 +134,8 @@ export default function Bookings() {
     )},
     { key: 'ids', label: 'Customer / Room', render: (b) => (
       <div className="booking-ids">
-        <span>Customer:{b.customerId} {customerMap[b.customerId] || ''}</span>
-        <span>Room:{b.roomId} {roomMap[b.roomId] ? `(${roomMap[b.roomId]})` : ''}</span>
+        <span>Customer: {b.customerId} {customerMap[b.customerId] ? `(${customerMap[b.customerId]})` : ''}</span>
+        <span>Room: {b.roomId} {roomMap[b.roomId] ? `(No. ${roomMap[b.roomId]})` : ''}</span>
       </div>
     )},
     { key: 'dates', label: 'Dates', render: (b) => (
@@ -153,7 +153,7 @@ export default function Bookings() {
     { key: 'actions', label: '', style: { width: 160 }, render: (b) => (
       <div className="booking-actions-cell">
         {b.status === 'Confirmed' && (
-          <button className="btn btn-sm" style={{ background: 'rgba(139,92,246,0.12)', color: '#8b5cf6', border: '1px solid rgba(139,92,246,0.2)' }}
+          <button className="btn btn-success btn-sm"
             onClick={() => handleAction(b.id, 'check-in', 'checked in')} title="Check In">
             <LogInIcon size={13} /> Check In
           </button>
@@ -185,7 +185,7 @@ export default function Bookings() {
       <div className="page-header">
         <div>
           <h1 className="page-title">Bookings</h1>
-          <p className="page-subtitle">{bookings.length} bookings</p>
+          <p className="page-subtitle">{bookings.length} reservations</p>
         </div>
         <div className="page-actions">
           <button className="btn btn-primary" onClick={openCreate}>
@@ -218,7 +218,7 @@ export default function Bookings() {
                 <label className="form-label" htmlFor="bCust">Customer</label>
                 <select id="bCust" className="form-select" value={form.customerId}
                   onChange={(e) => update('customerId', e.target.value)} required>
-                  <option value="">Select customer…</option>
+                  <option value="">Select customer...</option>
                   {customers.map((c) => (
                     <option key={c.id} value={c.id}>{c.firstName} {c.lastName}</option>
                   ))}
@@ -228,10 +228,10 @@ export default function Bookings() {
                 <label className="form-label" htmlFor="bRoom">Room</label>
                 <select id="bRoom" className="form-select" value={form.roomId}
                   onChange={(e) => update('roomId', e.target.value)} required>
-                  <option value="">Select room…</option>
+                  <option value="">Select room...</option>
                   {rooms.filter((r) => r.isAvailable).map((r) => (
                     <option key={r.id} value={r.id}>
-                      {r.roomNumber} — {r.roomType} (${r.pricePerNight}/night)
+                      Room {r.roomNumber} ({r.roomType}) : ${r.pricePerNight}/night
                     </option>
                   ))}
                 </select>
@@ -253,7 +253,7 @@ export default function Bookings() {
           <div className="modal-footer">
             <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
             <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? 'Creating…' : 'Create Booking'}
+              {saving ? 'Creating...' : 'Create Booking'}
             </button>
           </div>
         </form>

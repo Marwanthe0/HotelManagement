@@ -107,7 +107,7 @@ export default function Customers() {
     )},
     { key: 'phone', label: 'Phone' },
     { key: 'address', label: 'Address', render: (c) => (
-      <span className="text-secondary">{c.address || '—'}</span>
+      <span className="text-secondary">{c.address || 'N/A'}</span>
     )},
     { key: 'actions', label: '', style: { width: 100 }, render: (c) => (
       <div className="actions-cell">
@@ -127,7 +127,7 @@ export default function Customers() {
       <div className="page-header">
         <div>
           <h1 className="page-title">Customers</h1>
-          <p className="page-subtitle">{customers.length} customers</p>
+          <p className="page-subtitle">{customers.length} registered guests</p>
         </div>
         <div className="page-actions">
           <button className="btn btn-primary" onClick={openCreate}>
@@ -144,7 +144,7 @@ export default function Customers() {
           }} />
           <input
             className="form-input"
-            placeholder="Search by name or email…"
+            placeholder="Search by name or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{ paddingLeft: 36 }}
@@ -192,7 +192,7 @@ export default function Customers() {
           <div className="modal-footer">
             <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
             <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? 'Saving…' : editing ? 'Update' : 'Create'}
+              {saving ? 'Saving...' : editing ? 'Update' : 'Create'}
             </button>
           </div>
         </form>

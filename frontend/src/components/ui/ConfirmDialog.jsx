@@ -28,7 +28,7 @@ export default function ConfirmDialog({
             onClick={onConfirm}
             disabled={loading}
           >
-            {loading ? 'Processing…' : confirmText}
+            {loading ? 'Processing...' : confirmText}
           </button>
         </div>
       </div>

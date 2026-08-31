@@ -43,7 +43,7 @@
 }
 
 .payment-summary-row.highlight span:last-child {
-  color: var(--accent);
+  color: var(--gold);
 }
 
 .payment-summary-divider {

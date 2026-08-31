@@ -31,23 +31,23 @@
 }
 
 .stat-icon--rooms {
-  background: rgba(96, 165, 250, 0.12);
-  color: var(--info);
+  background: rgba(179, 154, 98, 0.12);
+  color: var(--gold);
 }
 
 .stat-icon--bookings {
-  background: rgba(139, 92, 246, 0.12);
-  color: var(--status-checkedin);
+  background: rgba(158, 38, 56, 0.12);
+  color: var(--accent);
 }
 
 .stat-icon--checkins {
-  background: rgba(52, 211, 153, 0.12);
+  background: rgba(74, 158, 109, 0.12);
   color: var(--success);
 }
 
 .stat-icon--revenue {
-  background: var(--accent-subtle);
-  color: var(--accent);
+  background: rgba(179, 154, 98, 0.15);
+  color: var(--gold);
 }
 
 .stat-content {

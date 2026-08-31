@@ -122,7 +122,7 @@ export default function Employees() {
       <div className="page-header">
         <div>
           <h1 className="page-title">Employees</h1>
-          <p className="page-subtitle">{employees.length} employees</p>
+          <p className="page-subtitle">{employees.length} hotel staff members</p>
         </div>
         <div className="page-actions">
           <button className="btn btn-primary" onClick={openCreate}>
@@ -185,7 +185,7 @@ export default function Employees() {
           <div className="modal-footer">
             <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
             <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? 'Saving…' : editing ? 'Update' : 'Create'}
+              {saving ? 'Saving...' : editing ? 'Update' : 'Create'}
             </button>
           </div>
         </form>

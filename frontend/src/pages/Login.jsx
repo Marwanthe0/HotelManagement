@@ -33,8 +33,9 @@ export default function Login() {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-brand">
-          <h1>Luxe Hotels</h1>
-          <p>Sign in to your account</p>
+          <img src="/Logo.png" alt="The Haunted Hotel" className="auth-logo" />
+          <p>Hotel Management System</p>
+          <p className="auth-tagline">Where every stay has a story</p>
         </div>
 
         <form className="auth-form" onSubmit={handleSubmit}>

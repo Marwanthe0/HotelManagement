@@ -76,7 +76,7 @@ export default function Payments() {
   }
 
   function formatDate(d) {
-    if (!d) return '—';
+    if (!d) return 'N/A';
     return new Date(d).toLocaleDateString('en-US', {
       month: 'short', day: 'numeric', year: 'numeric',
       hour: '2-digit', minute: '2-digit',
@@ -109,7 +109,7 @@ export default function Payments() {
       <div className="page-header">
         <div>
           <h1 className="page-title">Payments</h1>
-          <p className="page-subtitle">{payments.length} payment records</p>
+          <p className="page-subtitle">{payments.length} financial transactions</p>
         </div>
       </div>
 
@@ -178,7 +178,7 @@ export default function Payments() {
 
             <button type="submit" className="btn btn-primary" disabled={saving} style={{ width: '100%' }}>
               <CreditCard size={16} />
-              {saving ? 'Processing…' : 'Record Payment'}
+              {saving ? 'Processing...' : 'Record Payment'}
             </button>
           </form>
         </div>

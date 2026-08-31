@@ -22,6 +22,6 @@
 
 .price-cell {
   font-weight: 600;
-  color: var(--accent);
+  color: var(--gold);
   font-variant-numeric: tabular-nums;
 }

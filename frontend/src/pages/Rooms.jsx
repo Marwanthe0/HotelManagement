@@ -179,7 +179,7 @@ export default function Rooms() {
           <div className="modal-footer">
             <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
             <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? 'Saving…' : editing ? 'Update' : 'Create'}
+              {saving ? 'Saving...' : editing ? 'Update' : 'Create'}
             </button>
           </div>
         </form>

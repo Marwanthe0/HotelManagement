@@ -63,7 +63,7 @@ export default function Dashboard() {
         );
         setRecentBookings(sorted.slice(0, 5));
       } catch {
-        // Silently fail — dashboard is non-critical
+        // Silently fail if non-critical
       } finally {
         setLoading(false);
       }
@@ -80,7 +80,7 @@ export default function Dashboard() {
   }
 
   function formatDate(dateStr) {
-    if (!dateStr) return '—';
+    if (!dateStr) return 'N/A';
     return new Date(dateStr).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -100,7 +100,7 @@ export default function Dashboard() {
       <div className="page-header">
         <div>
           <h1 className="page-title">Dashboard</h1>
-          <p className="page-subtitle">Overview of your hotel operations</p>
+          <p className="page-subtitle">Administrative control center for The Haunted Hotel</p>
         </div>
       </div>
 
@@ -161,10 +161,10 @@ export default function Dashboard() {
                 <div className="recent-item" key={b.id}>
                   <div className="recent-item-info">
                     <span className="recent-item-primary">
-                      Booking #{b.id} — Room {b.roomId}
+                      Booking #{b.id} | Room {b.roomId}
                     </span>
                     <span className="recent-item-secondary">
-                      {formatDate(b.checkInDate)} → {formatDate(b.checkOutDate)}
+                      {formatDate(b.checkInDate)} to {formatDate(b.checkOutDate)}
                     </span>
                   </div>
                   <StatusBadge status={b.status} />

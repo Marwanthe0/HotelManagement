@@ -1,51 +1,55 @@
-/* ═══════════════════════════════════════════════════════════
-   HotelManagement — Design System
-   ═══════════════════════════════════════════════════════════ */
+/* ===================================================
+   The Haunted Hotel  //  Design System
+   =================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
-/* ── Tokens ──────────────────────────────────────────────── */
+/* -- Tokens ----------------------------------------- */
 :root {
   /* Surfaces */
-  --bg-root:       #0b0e14;
-  --bg-surface:    #131720;
-  --bg-elevated:   #1a1f2e;
-  --bg-hover:      #212738;
-  --bg-input:      #161b28;
-  --bg-overlay:    rgba(0, 0, 0, 0.55);
+  --bg-root:       #0B0B0D;
+  --bg-surface:    #141418;
+  --bg-elevated:   #1C1C22;
+  --bg-hover:      #25252B;
+  --bg-input:      #18181D;
+  --bg-overlay:    rgba(0, 0, 0, 0.6);
 
   /* Borders */
-  --border-subtle:  rgba(255, 255, 255, 0.06);
-  --border-default: rgba(255, 255, 255, 0.1);
+  --border-subtle:  rgba(255, 255, 255, 0.05);
+  --border-default: rgba(255, 255, 255, 0.08);
   --border-focus:   var(--accent);
 
   /* Text */
-  --text-primary:   #e8eaed;
-  --text-secondary: #8b8fa3;
-  --text-muted:     #5c6070;
-  --text-inverse:   #0b0e14;
+  --text-primary:   #F2EEE8;
+  --text-secondary: #A6A1A0;
+  --text-muted:     #6B6766;
+  --text-inverse:   #0B0B0D;
 
-  /* Accent */
-  --accent:         #c9a84c;
-  --accent-hover:   #d4b65e;
-  --accent-subtle:  rgba(201, 168, 76, 0.12);
-  --accent-text:    #0b0e14;
+  /* Accent: Deep Crimson */
+  --accent:         #9E2638;
+  --accent-hover:   #B02A3C;
+  --accent-subtle:  rgba(158, 38, 56, 0.12);
+  --accent-text:    #F2EEE8;
+
+  /* Secondary Accent: Antique Gold */
+  --gold:           #B39A62;
+  --gold-subtle:    rgba(179, 154, 98, 0.12);
 
   /* Status */
-  --status-pending:    #f0ad4e;
-  --status-confirmed:  #5bc0de;
-  --status-checkedin:  #8b5cf6;
-  --status-checkedout: #6c757d;
-  --status-cancelled:  #d9534f;
-  --status-paid:       #5cb85c;
-  --status-unpaid:     #d9534f;
-  --status-partial:    #f0ad4e;
+  --status-pending:    #C4923A;
+  --status-confirmed:  #B39A62;
+  --status-checkedin:  #4A9E6D;
+  --status-checkedout: #6B6766;
+  --status-cancelled:  #9E2638;
+  --status-paid:       #4A9E6D;
+  --status-unpaid:     #9E2638;
+  --status-partial:    #C4923A;
 
   /* Feedback */
-  --success: #34d399;
-  --error:   #ef4444;
-  --warning: #f59e0b;
-  --info:    #60a5fa;
+  --success: #4A9E6D;
+  --error:   #9E2638;
+  --warning: #C4923A;
+  --info:    #5A8BAD;
 
   /* Spacing */
   --space-xs:  4px;
@@ -63,7 +67,7 @@
 
   /* Typography */
   --font-sans:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-display: 'Playfair Display', Georgia, serif;
+  --font-display: 'Cinzel', 'Playfair Display', Georgia, serif;
   --text-xs:   0.75rem;
   --text-sm:   0.8125rem;
   --text-base: 0.875rem;
@@ -74,10 +78,10 @@
   --text-3xl:  1.875rem;
 
   /* Shadows */
-  --shadow-sm:  0 1px 2px rgba(0,0,0,0.3);
-  --shadow-md:  0 4px 12px rgba(0,0,0,0.25);
-  --shadow-lg:  0 8px 32px rgba(0,0,0,0.35);
-  --shadow-glow: 0 0 20px rgba(201,168,76,0.15);
+  --shadow-sm:  0 1px 2px rgba(0,0,0,0.4);
+  --shadow-md:  0 4px 16px rgba(0,0,0,0.35);
+  --shadow-lg:  0 8px 32px rgba(0,0,0,0.45);
+  --shadow-glow: 0 0 16px rgba(158,38,56,0.2);
 
   /* Transitions */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -89,7 +93,7 @@
   --header-height: 0px;
 }
 
-/* ── Reset ───────────────────────────────────────────────── */
+/* -- Reset ------------------------------------------ */
 *,
 *::before,
 *::after {
@@ -114,7 +118,7 @@ body {
 }
 
 a {
-  color: var(--accent);
+  color: var(--gold);
   text-decoration: none;
 }
 
@@ -144,10 +148,10 @@ ul, ol {
   list-style: none;
 }
 
-/* ── Scrollbar ───────────────────────────────────────────── */
+/* -- Scrollbar -------------------------------------- */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -155,15 +159,15 @@ ul, ol {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.14);
 }
 
-/* ── Form Elements ───────────────────────────────────────── */
+/* -- Form Elements ---------------------------------- */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -203,7 +207,7 @@ ul, ol {
 
 .form-select {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b8fa3' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A6A1A0' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   padding-right: 36px;
@@ -225,7 +229,7 @@ ul, ol {
   color: var(--error);
 }
 
-/* ── Buttons ─────────────────────────────────────────────── */
+/* -- Buttons ---------------------------------------- */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -264,7 +268,7 @@ ul, ol {
 
 .btn-secondary:hover:not(:disabled) {
   background: var(--bg-hover);
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .btn-ghost {
@@ -278,23 +282,23 @@ ul, ol {
 }
 
 .btn-danger {
-  background: rgba(239, 68, 68, 0.12);
+  background: rgba(158, 38, 56, 0.12);
   color: var(--error);
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(158, 38, 56, 0.2);
 }
 
 .btn-danger:hover:not(:disabled) {
-  background: rgba(239, 68, 68, 0.2);
+  background: rgba(158, 38, 56, 0.22);
 }
 
 .btn-success {
-  background: rgba(52, 211, 153, 0.12);
+  background: rgba(74, 158, 109, 0.12);
   color: var(--success);
-  border: 1px solid rgba(52, 211, 153, 0.2);
+  border: 1px solid rgba(74, 158, 109, 0.2);
 }
 
 .btn-success:hover:not(:disabled) {
-  background: rgba(52, 211, 153, 0.2);
+  background: rgba(74, 158, 109, 0.22);
 }
 
 .btn-sm {
@@ -311,7 +315,7 @@ ul, ol {
   background: var(--bg-hover);
 }
 
-/* ── Cards ───────────────────────────────────────────────── */
+/* -- Cards ------------------------------------------ */
 .card {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
@@ -332,9 +336,9 @@ ul, ol {
   color: var(--text-primary);
 }
 
-/* ── Page Layout ─────────────────────────────────────────── */
+/* -- Page Layout ------------------------------------ */
 .page {
-  animation: pageIn 0.35s var(--ease-out);
+  animation: pageIn 0.3s var(--ease-out);
 }
 
 .page-header {
@@ -349,9 +353,9 @@ ul, ol {
 .page-title {
   font-family: var(--font-display);
   font-size: var(--text-2xl);
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-primary);
-  letter-spacing: -0.01em;
+  letter-spacing: 0.02em;
 }
 
 .page-subtitle {
@@ -366,7 +370,7 @@ ul, ol {
   gap: var(--space-sm);
 }
 
-/* ── Tabs ────────────────────────────────────────────────── */
+/* -- Tabs ------------------------------------------- */
 .tabs {
   display: flex;
   gap: 2px;
@@ -397,7 +401,7 @@ ul, ol {
   color: var(--accent);
 }
 
-/* ── Empty State ─────────────────────────────────────────── */
+/* -- Empty State ------------------------------------ */
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -417,7 +421,7 @@ ul, ol {
   font-size: var(--text-sm);
 }
 
-/* ── Loader ──────────────────────────────────────────────── */
+/* -- Loader ----------------------------------------- */
 .loader {
   display: flex;
   align-items: center;
@@ -434,11 +438,11 @@ ul, ol {
   animation: spin 0.7s linear infinite;
 }
 
-/* ── Animations ──────────────────────────────────────────── */
+/* -- Animations ------------------------------------- */
 @keyframes pageIn {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -466,7 +470,7 @@ ul, ol {
   }
 }
 
-/* ── Utilities ───────────────────────────────────────────── */
+/* -- Utilities -------------------------------------- */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -484,7 +488,7 @@ ul, ol {
 .text-error   { color: var(--error); }
 .text-warning { color: var(--warning); }
 
-/* ── Responsive ──────────────────────────────────────────── */
+/* -- Responsive ------------------------------------- */
 @media (max-width: 768px) {
   .form-row {
     grid-template-columns: 1fr;

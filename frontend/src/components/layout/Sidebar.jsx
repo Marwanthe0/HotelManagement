@@ -59,8 +59,8 @@ export default function Sidebar() {
 
       <aside className={`sidebar${open ? ' open' : ''}`}>
         <div className="sidebar-brand">
-          <h1>Luxe Hotels</h1>
-          <span>Management System</span>
+          <img src="/Logo.png" alt="The Haunted Hotel" className="sidebar-logo" />
+          <span className="sidebar-brand-text">Management System</span>
         </div>
 
         <nav className="sidebar-nav">

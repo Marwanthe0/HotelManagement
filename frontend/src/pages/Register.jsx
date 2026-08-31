@@ -41,7 +41,7 @@ export default function Register() {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-brand">
-          <h1>Luxe Hotels</h1>
+          <img src="/Logo.png" alt="The Haunted Hotel" className="auth-logo" />
           <p>Create your account</p>
         </div>
 

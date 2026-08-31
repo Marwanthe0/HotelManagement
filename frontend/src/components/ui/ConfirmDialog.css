@@ -14,12 +14,12 @@
 }
 
 .confirm-icon--danger {
-  background: rgba(239, 68, 68, 0.12);
+  background: rgba(158, 38, 56, 0.12);
   color: var(--error);
 }
 
 .confirm-icon--warning {
-  background: rgba(245, 158, 11, 0.12);
+  background: rgba(196, 146, 58, 0.12);
   color: var(--warning);
 }
 
