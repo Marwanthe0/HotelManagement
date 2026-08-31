@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import DataTable from '../components/ui/DataTable';
 import StatusBadge from '../components/ui/StatusBadge';
@@ -11,6 +12,9 @@ import './Rooms.css';
 const emptyForm = { roomNumber: '', roomType: 'Standard', pricePerNight: '', isAvailable: true };
 
 export default function Rooms() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'Admin';
+
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -108,17 +112,19 @@ export default function Rooms() {
     { key: 'isAvailable', label: 'Status', render: (r) => (
       <StatusBadge status={r.isAvailable ? 'Available' : 'Maintenance'} />
     )},
-    { key: 'actions', label: '', style: { width: 100 }, render: (r) => (
-      <div className="actions-cell">
-        <button className="btn-icon" onClick={() => openEdit(r)} title="Edit">
-          <Pencil size={15} />
-        </button>
-        <button className="btn-icon" onClick={() => setDeleteTarget(r)} title="Delete"
-          style={{ color: 'var(--error)' }}>
-          <Trash2 size={15} />
-        </button>
-      </div>
-    )},
+    ...(isAdmin ? [{
+      key: 'actions', label: '', style: { width: 100 }, render: (r) => (
+        <div className="actions-cell">
+          <button className="btn-icon" onClick={() => openEdit(r)} title="Edit">
+            <Pencil size={15} />
+          </button>
+          <button className="btn-icon" onClick={() => setDeleteTarget(r)} title="Delete"
+            style={{ color: 'var(--error)' }}>
+            <Trash2 size={15} />
+          </button>
+        </div>
+      ),
+    }] : []),
   ];
 
   return (
@@ -128,73 +134,79 @@ export default function Rooms() {
           <h1 className="page-title">Rooms</h1>
           <p className="page-subtitle">{rooms.length} rooms total</p>
         </div>
-        <div className="page-actions">
-          <button className="btn btn-primary" onClick={openCreate}>
-            <Plus size={16} /> Add Room
-          </button>
-        </div>
+        {isAdmin && (
+          <div className="page-actions">
+            <button className="btn btn-primary" onClick={openCreate}>
+              <Plus size={16} /> Add Room
+            </button>
+          </div>
+        )}
       </div>
 
       <DataTable columns={columns} data={rooms} loading={loading} emptyMessage="No rooms found. Add your first room." />
 
       {/* Create/Edit Modal */}
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Edit Room' : 'Add Room'}>
-        <form onSubmit={handleSave}>
-          <div className="modal-body">
-            <div className="form-row">
-              <div className="form-group">
-                <label className="form-label" htmlFor="roomNumber">Room Number</label>
-                <input id="roomNumber" className="form-input" value={form.roomNumber}
-                  onChange={(e) => update('roomNumber', e.target.value)} required placeholder="101" />
+      {isAdmin && (
+        <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Edit Room' : 'Add Room'}>
+          <form onSubmit={handleSave}>
+            <div className="modal-body">
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label" htmlFor="roomNumber">Room Number</label>
+                  <input id="roomNumber" className="form-input" value={form.roomNumber}
+                    onChange={(e) => update('roomNumber', e.target.value)} required placeholder="101" />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="roomType">Room Type</label>
+                  <select id="roomType" className="form-select" value={form.roomType}
+                    onChange={(e) => update('roomType', e.target.value)}>
+                    <option>Standard</option>
+                    <option>Deluxe</option>
+                    <option>Suite</option>
+                    <option>Penthouse</option>
+                  </select>
+                </div>
               </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="roomType">Room Type</label>
-                <select id="roomType" className="form-select" value={form.roomType}
-                  onChange={(e) => update('roomType', e.target.value)}>
-                  <option>Standard</option>
-                  <option>Deluxe</option>
-                  <option>Suite</option>
-                  <option>Penthouse</option>
-                </select>
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label" htmlFor="price">Price Per Night ($)</label>
+                  <input id="price" className="form-input" type="number" min="1" step="0.01"
+                    value={form.pricePerNight} onChange={(e) => update('pricePerNight', e.target.value)}
+                    required placeholder="150.00" />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="available">Status</label>
+                  <select id="available" className="form-select"
+                    value={form.isAvailable ? 'true' : 'false'}
+                    onChange={(e) => update('isAvailable', e.target.value === 'true')}>
+                    <option value="true">Available</option>
+                    <option value="false">Under Maintenance</option>
+                  </select>
+                </div>
               </div>
             </div>
-            <div className="form-row">
-              <div className="form-group">
-                <label className="form-label" htmlFor="price">Price Per Night ($)</label>
-                <input id="price" className="form-input" type="number" min="1" step="0.01"
-                  value={form.pricePerNight} onChange={(e) => update('pricePerNight', e.target.value)}
-                  required placeholder="150.00" />
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="available">Status</label>
-                <select id="available" className="form-select"
-                  value={form.isAvailable ? 'true' : 'false'}
-                  onChange={(e) => update('isAvailable', e.target.value === 'true')}>
-                  <option value="true">Available</option>
-                  <option value="false">Under Maintenance</option>
-                </select>
-              </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
+              <button type="submit" className="btn btn-primary" disabled={saving}>
+                {saving ? 'Saving...' : editing ? 'Update' : 'Create'}
+              </button>
             </div>
-          </div>
-          <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
-            <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? 'Saving...' : editing ? 'Update' : 'Create'}
-            </button>
-          </div>
-        </form>
-      </Modal>
+          </form>
+        </Modal>
+      )}
 
       {/* Delete Confirmation */}
-      <ConfirmDialog
-        open={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={handleDelete}
-        title="Delete Room"
-        message={`Are you sure you want to delete room ${deleteTarget?.roomNumber}? This action cannot be undone.`}
-        confirmText="Delete"
-        loading={deleting}
-      />
+      {isAdmin && (
+        <ConfirmDialog
+          open={!!deleteTarget}
+          onClose={() => setDeleteTarget(null)}
+          onConfirm={handleDelete}
+          title="Delete Room"
+          message={`Are you sure you want to delete room ${deleteTarget?.roomNumber}? This action cannot be undone.`}
+          confirmText="Delete"
+          loading={deleting}
+        />
+      )}
     </div>
   );
 }
