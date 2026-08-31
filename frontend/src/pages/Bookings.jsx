@@ -229,7 +229,7 @@ export default function Bookings() {
                 <select id="bRoom" className="form-select" value={form.roomId}
                   onChange={(e) => update('roomId', e.target.value)} required>
                   <option value="">Select room…</option>
-                  {rooms.map((r) => (
+                  {rooms.filter((r) => r.isAvailable).map((r) => (
                     <option key={r.id} value={r.id}>
                       {r.roomNumber} — {r.roomType} (${r.pricePerNight}/night)
                     </option>

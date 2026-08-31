@@ -106,7 +106,7 @@ export default function Rooms() {
       <span className="price-cell">${r.pricePerNight.toFixed(2)}</span>
     )},
     { key: 'isAvailable', label: 'Status', render: (r) => (
-      <StatusBadge status={r.isAvailable ? 'Available' : 'Occupied'} />
+      <StatusBadge status={r.isAvailable ? 'Available' : 'Maintenance'} />
     )},
     { key: 'actions', label: '', style: { width: 100 }, render: (r) => (
       <div className="actions-cell">
@@ -166,12 +166,12 @@ export default function Rooms() {
                   required placeholder="150.00" />
               </div>
               <div className="form-group">
-                <label className="form-label" htmlFor="available">Availability</label>
+                <label className="form-label" htmlFor="available">Status</label>
                 <select id="available" className="form-select"
                   value={form.isAvailable ? 'true' : 'false'}
                   onChange={(e) => update('isAvailable', e.target.value === 'true')}>
                   <option value="true">Available</option>
-                  <option value="false">Occupied</option>
+                  <option value="false">Under Maintenance</option>
                 </select>
               </div>
             </div>

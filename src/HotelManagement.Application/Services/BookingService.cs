@@ -68,6 +68,13 @@ public class BookingService : IBookingService
             throw new InvalidOperationException("Room with this Id not found.");
         }
 
+        // 3b. Room must be available (not under maintenance)
+        if (!room.IsAvailable)
+        {
+            throw new InvalidOperationException(
+                "This room is currently under maintenance and cannot be booked.");
+        }
+
         // 4. Check room availability
         var isAvailable = await _bookingRepository.IsRoomAvailableAsync(
             dto.RoomId,

@@ -13,7 +13,7 @@ export default function StatusBadge({ status }) {
     unpaid: 'Unpaid',
     partiallypaid: 'Partial',
     available: 'Available',
-    occupied: 'Occupied',
+    maintenance: 'Under Maintenance',
   };
 
   return (

@@ -94,10 +94,10 @@
   background: var(--status-paid);
 }
 
-.status-badge--occupied {
-  background: rgba(217, 83, 79, 0.12);
-  color: var(--status-cancelled);
+.status-badge--maintenance {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--warning);
 }
-.status-badge--occupied::before {
-  background: var(--status-cancelled);
+.status-badge--maintenance::before {
+  background: var(--warning);
 }
