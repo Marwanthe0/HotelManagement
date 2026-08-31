@@ -1,15 +1,17 @@
 .app-layout {
   display: flex;
   min-height: 100vh;
+  width: 100%;
 }
 
 .app-main-wrapper {
   flex: 1;
-  margin-left: var(--sidebar-width);
+  margin-left: 0;
   display: flex;
   flex-direction: column;
   min-width: 0;
   max-width: 100%;
+  width: 100%;
 }
 
 .app-topbar {
@@ -26,10 +28,31 @@
 .app-topbar-left {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: var(--space-md);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   font-weight: 500;
+}
+
+.nav-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  flex-shrink: 0;
+}
+
+.nav-toggle-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--gold);
+  color: var(--gold);
 }
 
 .app-topbar-hotel {
@@ -71,12 +94,8 @@
 }
 
 @media (max-width: 768px) {
-  .app-main-wrapper {
-    margin-left: 0;
-  }
-
   .app-topbar {
-    padding: 12px var(--space-md) 12px 60px;
+    padding: 12px var(--space-md);
   }
 
   .app-main {

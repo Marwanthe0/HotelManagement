@@ -8,10 +8,7 @@ import {
   CreditCard,
   UserCog,
   LogOut,
-  Menu,
-  X,
 } from 'lucide-react';
-import { useState } from 'react';
 import './Sidebar.css';
 
 const navItems = [
@@ -23,10 +20,9 @@ const navItems = [
   { to: '/employees', icon: UserCog,         label: 'Employees',  section: 'Finance' },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ open, onClose }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
 
   function handleLogout() {
     logout();
@@ -48,13 +44,9 @@ export default function Sidebar() {
 
   return (
     <>
-      <button className="mobile-menu-btn" onClick={() => setOpen(true)}>
-        <Menu size={20} />
-      </button>
-
       <div
         className={`sidebar-backdrop${open ? ' visible' : ''}`}
-        onClick={() => setOpen(false)}
+        onClick={onClose}
       />
 
       <aside className={`sidebar${open ? ' open' : ''}`}>
@@ -75,7 +67,7 @@ export default function Sidebar() {
                   className={({ isActive }) =>
                     `sidebar-link${isActive ? ' active' : ''}`
                   }
-                  onClick={() => setOpen(false)}
+                  onClick={onClose}
                 >
                   <item.icon size={18} />
                   {item.label}
