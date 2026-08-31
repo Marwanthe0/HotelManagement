@@ -1,28 +1,96 @@
-.dashboard-stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+/* ==========================================================================
+   Dashboard Styling - The Haunted Hotel Analytics
+   ========================================================================== */
+
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+/* Loading & Error States */
+.dashboard-loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 380px;
   gap: var(--space-md);
-  margin-bottom: var(--space-xl);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.dashboard-loading-text {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  letter-spacing: 0.04em;
+}
+
+.dashboard-error-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2xl);
+  background: var(--bg-surface);
+  border: 1px solid rgba(158, 38, 56, 0.3);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  gap: var(--space-sm);
+}
+
+.dashboard-error-icon {
+  color: var(--error);
+  margin-bottom: var(--space-xs);
+}
+
+.dashboard-error-card h3 {
+  font-size: var(--text-lg);
+  color: var(--text-primary);
+}
+
+.dashboard-error-card p {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  max-width: 400px;
+  margin-bottom: var(--space-md);
+}
+
+/* Section 1: Summary Cards Grid (6 cards) */
+.dashboard-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--space-md);
 }
 
 .stat-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  padding: var(--space-lg);
+  padding: 18px 16px;
   display: flex;
   align-items: flex-start;
-  gap: var(--space-md);
-  transition: border-color var(--duration-fast) var(--ease-out);
+  gap: 12px;
+  transition: all var(--duration-fast) var(--ease-out);
+  position: relative;
+  overflow: hidden;
 }
 
 .stat-card:hover {
   border-color: var(--border-default);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-card--highlight {
+  border-color: rgba(179, 154, 98, 0.25);
+  background: linear-gradient(180deg, rgba(179, 154, 98, 0.03) 0%, var(--bg-surface) 100%);
 }
 
 .stat-icon {
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
@@ -35,14 +103,24 @@
   color: var(--gold);
 }
 
-.stat-icon--bookings {
+.stat-icon--available {
+  background: rgba(74, 158, 109, 0.12);
+  color: var(--success);
+}
+
+.stat-icon--occupied {
   background: rgba(158, 38, 56, 0.12);
   color: var(--accent);
 }
 
-.stat-icon--checkins {
-  background: rgba(74, 158, 109, 0.12);
-  color: var(--success);
+.stat-icon--bookings {
+  background: rgba(139, 92, 246, 0.12);
+  color: #a78bfa;
+}
+
+.stat-icon--customers {
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
 }
 
 .stat-icon--revenue {
@@ -56,27 +134,512 @@
 }
 
 .stat-value {
-  font-size: var(--text-2xl);
+  font-size: var(--text-xl);
   font-weight: 700;
   color: var(--text-primary);
-  line-height: 1.2;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
 }
 
 .stat-label {
-  font-size: var(--text-xs);
+  font-size: 11px;
   color: var(--text-muted);
   margin-top: 4px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-weight: 500;
+  letter-spacing: 0.05em;
+  font-weight: 600;
 }
 
-.dashboard-grid {
+.stat-subtext {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Two-column layout */
+.dashboard-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+}
+
+/* Analytics Cards */
+.analytics-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-header-icon {
+  color: var(--gold);
+}
+
+.analytics-badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 8px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+}
+
+/* Section 2: Occupancy Overview Donut & Breakdown */
+.occupancy-overview-body {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: var(--space-lg);
+  align-items: center;
+  padding: var(--space-xs) 0;
+}
+
+.donut-chart-container {
+  width: 140px;
+  height: 140px;
+  position: relative;
+  margin: 0 auto;
+}
+
+.donut-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.donut-bg-ring {
+  fill: none;
+  stroke: var(--bg-hover);
+  stroke-width: 18;
+}
+
+.donut-segment {
+  fill: none;
+  stroke-width: 18;
+  transition: stroke-dasharray 0.5s ease-out;
+}
+
+.segment-available {
+  stroke: var(--success);
+}
+
+.segment-occupied {
+  stroke: var(--accent);
+}
+
+.segment-reserved {
+  stroke: var(--gold);
+}
+
+.donut-center-value {
+  transform: rotate(90deg);
+  transform-origin: 80px 80px;
+  fill: var(--text-primary);
+  font-size: 22px;
+  font-weight: 700;
+  font-family: inherit;
+}
+
+.donut-center-label {
+  transform: rotate(90deg);
+  transform-origin: 80px 80px;
+  fill: var(--text-muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: inherit;
+}
+
+.occupancy-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.breakdown-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.breakdown-item-header {
+  display: flex;
+  align-items: center;
+  font-size: var(--text-xs);
+}
+
+.legend-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+.bg-available { background: var(--success); }
+.bg-occupied { background: var(--accent); }
+.bg-reserved { background: var(--gold); }
+
+.breakdown-label {
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+.breakdown-value {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-hover);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.4s ease-out;
+}
+
+.fill-available { background: var(--success); }
+.fill-occupied { background: var(--accent); }
+.fill-reserved { background: var(--gold); }
+
+/* Section 3: Booking Status Breakdown */
+.booking-status-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+}
+
+.status-grid-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.status-metric-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  transition: background 0.15s ease;
+}
+
+.status-metric-row:hover {
+  background: var(--bg-hover);
+}
+
+.status-metric-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-bullet {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-bullet--confirmed { background: var(--status-confirmed); }
+.status-bullet--checkedin { background: var(--status-checkedin); }
+.status-bullet--pending { background: var(--status-pending); }
+.status-bullet--checkedout { background: var(--status-checkedout); }
+.status-bullet--cancelled { background: var(--status-cancelled); }
+
+.status-name {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.status-metric-counts {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-count {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.status-pct {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.empty-analytics-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  gap: 8px;
+}
+
+/* Section 4 & 5: Charts (Bar & Occupancy) */
+.chart-wrapper {
+  padding-top: var(--space-md);
+  min-height: 180px;
+}
+
+.bar-chart-container,
+.occupancy-bars-container {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  align-items: flex-end;
+  height: 160px;
+  padding-bottom: 24px;
+  position: relative;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.bar-column,
+.occupancy-bar-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  position: relative;
+  cursor: pointer;
+}
+
+.bar-track,
+.occupancy-track {
+  width: 100%;
+  max-width: 32px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px 4px 0 0;
+  display: flex;
+  align-items: flex-end;
+}
+
+.bar-fill {
+  width: 100%;
+  background: linear-gradient(180deg, var(--gold) 0%, rgba(179, 154, 98, 0.6) 100%);
+  border-radius: 4px 4px 0 0;
+  transition: height 0.4s ease-out;
+}
+
+.bar-column:hover .bar-fill {
+  background: linear-gradient(180deg, #d4be88 0%, var(--gold) 100%);
+  box-shadow: 0 0 8px rgba(179, 154, 98, 0.3);
+}
+
+.occupancy-fill {
+  width: 100%;
+  background: linear-gradient(180deg, var(--accent) 0%, rgba(158, 38, 56, 0.5) 100%);
+  border-radius: 4px 4px 0 0;
+  transition: height 0.4s ease-out;
+}
+
+.occupancy-bar-column:hover .occupancy-fill {
+  background: linear-gradient(180deg, #b02a3c 0%, var(--accent) 100%);
+  box-shadow: 0 0 8px rgba(158, 38, 56, 0.3);
+}
+
+.bar-value-label,
+.occupancy-value-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+  white-space: nowrap;
+}
+
+.bar-x-label {
+  position: absolute;
+  bottom: -22px;
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.chart-tooltip {
+  position: absolute;
+  top: -34px;
+  background: #25252b;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  white-space: nowrap;
+  z-index: 10;
+  box-shadow: var(--shadow-md);
+  pointer-events: none;
+}
+
+.chart-tooltip strong {
+  color: var(--gold);
+}
+
+.chart-tooltip span {
+  color: var(--text-primary);
+}
+
+/* Section 6: Room Category Breakdown */
+.category-occupancy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: var(--space-xs) 0;
+}
+
+.category-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.category-row-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--text-xs);
+}
+
+.category-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.category-counts {
+  color: var(--text-muted);
+}
+
+.category-progress-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.category-pct-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gold);
+  min-width: 38px;
+  text-align: right;
+}
+
+/* Section 9: Financial Ledger & Overview */
+.financial-ledger-body {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-md);
 }
 
+.financial-summary-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+}
+
+.finance-mini-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.finance-mini-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.finance-mini-val {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.val--paid {
+  color: var(--gold);
+}
+
+.val--outstanding {
+  color: var(--text-secondary);
+}
+
+.ledger-breakdown-box {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px;
+}
+
+.ledger-box-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.ledger-status-pills {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.ledger-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  font-size: 11px;
+}
+
+.pill-icon {
+  flex-shrink: 0;
+}
+
+.pill-text {
+  color: var(--text-secondary);
+}
+
+.pill-val {
+  color: var(--text-primary);
+  margin-left: auto;
+}
+
+.text-success { color: var(--success); }
+.text-warning { color: var(--warning); }
+.text-danger { color: var(--error); }
+
+/* Activity Lists (Recent Bookings & Payments) */
 .recent-list {
   display: flex;
   flex-direction: column;
@@ -86,7 +649,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 0;
+  padding: 10px 0;
   border-bottom: 1px solid var(--border-subtle);
   gap: var(--space-md);
 }
@@ -98,63 +661,161 @@
 .recent-item-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   min-width: 0;
 }
 
 .recent-item-primary {
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   font-weight: 500;
   color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.meta-separator {
+  color: var(--border-default);
+  font-size: 10px;
 }
 
 .recent-item-secondary {
-  font-size: var(--text-xs);
+  font-size: 11px;
   color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.quick-actions {
+.booking-amount-inline {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.payment-amount-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.payment-method-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: 500;
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--gold);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease;
+}
+
+.btn-link:hover {
+  color: var(--accent);
+}
+
+/* Quick Actions Section */
+.quick-actions-card {
+  margin-top: var(--space-xs);
+}
+
+.quick-actions-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(6, 1fr);
   gap: var(--space-sm);
 }
 
 .quick-action-btn {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 10px;
   background: var(--bg-elevated);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   color: var(--text-secondary);
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   font-weight: 500;
+  text-align: center;
   transition: all var(--duration-fast) var(--ease-out);
+  cursor: pointer;
 }
 
 .quick-action-btn:hover {
   color: var(--text-primary);
   border-color: var(--border-default);
   background: var(--bg-hover);
+  transform: translateY(-2px);
 }
 
-@media (max-width: 1024px) {
-  .dashboard-stats {
+.btn-action-icon {
+  color: var(--gold);
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1200px) {
+  .dashboard-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .quick-actions-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 860px) {
+  .dashboard-grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .occupancy-overview-body {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .breakdown-item-header {
+    justify-content: space-between;
+  }
+
+  .dashboard-stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .dashboard-grid {
-    grid-template-columns: 1fr;
+  .quick-actions-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 640px) {
-  .dashboard-stats {
+@media (max-width: 540px) {
+  .dashboard-stats-grid {
     grid-template-columns: 1fr;
   }
 
-  .quick-actions {
+  .quick-actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .financial-summary-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .ledger-status-pills {
     grid-template-columns: 1fr;
   }
 }
