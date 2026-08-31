@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import DataTable from '../components/ui/DataTable';
 import Modal from '../components/ui/Modal';
@@ -10,6 +11,9 @@ import './Employees.css';
 const emptyForm = { firstName: '', lastName: '', email: '', phone: '', role: 'Receptionist', salary: '' };
 
 export default function Employees() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'Admin';
+
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -104,17 +108,19 @@ export default function Employees() {
     { key: 'salary', label: 'Salary', render: (e) => (
       <span className="salary-cell">${e.salary.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
     )},
-    { key: 'actions', label: '', style: { width: 100 }, render: (e) => (
-      <div className="actions-cell">
-        <button className="btn-icon" onClick={() => openEdit(e)} title="Edit">
-          <Pencil size={15} />
-        </button>
-        <button className="btn-icon" onClick={() => setDeleteTarget(e)} title="Delete"
-          style={{ color: 'var(--error)' }}>
-          <Trash2 size={15} />
-        </button>
-      </div>
-    )},
+    ...(isAdmin ? [{
+      key: 'actions', label: '', style: { width: 100 }, render: (e) => (
+        <div className="actions-cell">
+          <button className="btn-icon" onClick={() => openEdit(e)} title="Edit">
+            <Pencil size={15} />
+          </button>
+          <button className="btn-icon" onClick={() => setDeleteTarget(e)} title="Delete"
+            style={{ color: 'var(--error)' }}>
+            <Trash2 size={15} />
+          </button>
+        </div>
+      ),
+    }] : []),
   ];
 
   return (
@@ -124,82 +130,88 @@ export default function Employees() {
           <h1 className="page-title">Employees</h1>
           <p className="page-subtitle">{employees.length} hotel staff members</p>
         </div>
-        <div className="page-actions">
-          <button className="btn btn-primary" onClick={openCreate}>
-            <Plus size={16} /> Add Employee
-          </button>
-        </div>
+        {isAdmin && (
+          <div className="page-actions">
+            <button className="btn btn-primary" onClick={openCreate}>
+              <Plus size={16} /> Add Employee
+            </button>
+          </div>
+        )}
       </div>
 
       <DataTable columns={columns} data={employees} loading={loading}
         emptyMessage="No employees found. Add your first employee." />
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)}
-        title={editing ? 'Edit Employee' : 'Add Employee'}>
-        <form onSubmit={handleSave}>
-          <div className="modal-body">
-            <div className="form-row">
-              <div className="form-group">
-                <label className="form-label" htmlFor="empFirst">First Name</label>
-                <input id="empFirst" className="form-input" value={form.firstName}
-                  onChange={(e) => update('firstName', e.target.value)} required placeholder="Jane" />
+      {isAdmin && (
+        <Modal open={modalOpen} onClose={() => setModalOpen(false)}
+          title={editing ? 'Edit Employee' : 'Add Employee'}>
+          <form onSubmit={handleSave}>
+            <div className="modal-body">
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label" htmlFor="empFirst">First Name</label>
+                  <input id="empFirst" className="form-input" value={form.firstName}
+                    onChange={(e) => update('firstName', e.target.value)} required placeholder="Jane" />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="empLast">Last Name</label>
+                  <input id="empLast" className="form-input" value={form.lastName}
+                    onChange={(e) => update('lastName', e.target.value)} required placeholder="Smith" />
+                </div>
               </div>
               <div className="form-group">
-                <label className="form-label" htmlFor="empLast">Last Name</label>
-                <input id="empLast" className="form-input" value={form.lastName}
-                  onChange={(e) => update('lastName', e.target.value)} required placeholder="Smith" />
+                <label className="form-label" htmlFor="empEmail">Email</label>
+                <input id="empEmail" className="form-input" type="email" value={form.email}
+                  onChange={(e) => update('email', e.target.value)} required placeholder="jane@hotel.com" />
               </div>
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="empEmail">Email</label>
-              <input id="empEmail" className="form-input" type="email" value={form.email}
-                onChange={(e) => update('email', e.target.value)} required placeholder="jane@hotel.com" />
-            </div>
-            <div className="form-row">
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label" htmlFor="empPhone">Phone</label>
+                  <input id="empPhone" className="form-input" value={form.phone}
+                    onChange={(e) => update('phone', e.target.value)} required placeholder="+1 555-0199" />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="empRole">Role</label>
+                  <select id="empRole" className="form-select" value={form.role}
+                    onChange={(e) => update('role', e.target.value)}>
+                    <option>Receptionist</option>
+                    <option>Housekeeper</option>
+                    <option>Manager</option>
+                    <option>Maintenance</option>
+                    <option>Security</option>
+                    <option>Chef</option>
+                    <option>Concierge</option>
+                  </select>
+                </div>
+              </div>
               <div className="form-group">
-                <label className="form-label" htmlFor="empPhone">Phone</label>
-                <input id="empPhone" className="form-input" value={form.phone}
-                  onChange={(e) => update('phone', e.target.value)} required placeholder="+1 555-0199" />
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="empRole">Role</label>
-                <select id="empRole" className="form-select" value={form.role}
-                  onChange={(e) => update('role', e.target.value)}>
-                  <option>Receptionist</option>
-                  <option>Housekeeper</option>
-                  <option>Manager</option>
-                  <option>Maintenance</option>
-                  <option>Security</option>
-                  <option>Chef</option>
-                  <option>Concierge</option>
-                </select>
+                <label className="form-label" htmlFor="empSalary">Monthly Salary ($)</label>
+                <input id="empSalary" className="form-input" type="number" min="0" step="0.01"
+                  value={form.salary} onChange={(e) => update('salary', e.target.value)}
+                  required placeholder="3500.00" />
               </div>
             </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="empSalary">Monthly Salary ($)</label>
-              <input id="empSalary" className="form-input" type="number" min="0" step="0.01"
-                value={form.salary} onChange={(e) => update('salary', e.target.value)}
-                required placeholder="3500.00" />
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
+              <button type="submit" className="btn btn-primary" disabled={saving}>
+                {saving ? 'Saving...' : editing ? 'Update' : 'Create'}
+              </button>
             </div>
-          </div>
-          <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
-            <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? 'Saving...' : editing ? 'Update' : 'Create'}
-            </button>
-          </div>
-        </form>
-      </Modal>
+          </form>
+        </Modal>
+      )}
 
-      <ConfirmDialog
-        open={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={handleDelete}
-        title="Delete Employee"
-        message={`Delete ${deleteTarget?.firstName} ${deleteTarget?.lastName}? This action cannot be undone.`}
-        confirmText="Delete"
-        loading={deleting}
-      />
+      {isAdmin && (
+        <ConfirmDialog
+          open={!!deleteTarget}
+          onClose={() => setDeleteTarget(null)}
+          onConfirm={handleDelete}
+          title="Delete Employee"
+          message={`Delete ${deleteTarget?.firstName} ${deleteTarget?.lastName}? This action cannot be undone.`}
+          confirmText="Delete"
+          loading={deleting}
+        />
+      )}
     </div>
   );
 }

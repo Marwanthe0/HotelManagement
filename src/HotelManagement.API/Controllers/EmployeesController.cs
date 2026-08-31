@@ -37,6 +37,7 @@ public class EmployeesController : ControllerBase
     }
 
     //POST /api/employees
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<ActionResult<EmployeeResponseDTO>> Create(CreateEmployeeDTO dto)
     {
@@ -45,6 +46,7 @@ public class EmployeesController : ControllerBase
     }
 
     //PUT /api/employees/{id}
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}")]
     public async Task<ActionResult<EmployeeResponseDTO>> Update(int id, UpdateEmployeeDTO dto)
     {
@@ -56,6 +58,7 @@ public class EmployeesController : ControllerBase
     }
 
     //DELETE /api/employees/{id}
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
