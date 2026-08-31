@@ -1,12 +1,12 @@
 # The Haunted Hotel: Management System
 
-A full-stack hotel management system built with **ASP.NET Core (.NET 9)** and **React 19**. The backend follows Clean Architecture with Entity Framework Core and SQL Server, while the frontend is a Vite-powered React SPA with a custom dark-themed UI.
+A full-stack hotel management system built with **ASP.NET Core (.NET 10)** and **React 19**. The backend follows Clean Architecture with Entity Framework Core and SQL Server, while the frontend is a Vite-powered React SPA with a custom dark-themed UI.
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Backend | ASP.NET Core Web API (.NET 9), C# |
+| Backend | ASP.NET Core Web API (.NET 10), C# |
 | Database | SQL Server, Entity Framework Core 9 |
 | Authentication | JWT Bearer Tokens, BCrypt password hashing |
 | Frontend | React 19, Vite, React Router v7 |
@@ -47,7 +47,7 @@ A full-stack hotel management system built with **ASP.NET Core (.NET 9)** and **
 
 Users can create a new account by providing their **username**, **email**, **password**, **role** (Admin or Staff), **phone number**, and **address**. Passwords are hashed with BCrypt before storage. Duplicate emails and usernames are rejected. On successful registration, a JWT token is issued and the user is logged in automatically.
 
-![Registration](./readme%20screenshots/Registration.png)
+![Registration](./docs/screenshot/Registration.png)
 
 ---
 
@@ -55,7 +55,7 @@ Users can create a new account by providing their **username**, **email**, **pas
 
 Registered users can log in using their **email** and **password**. The server verifies the credentials against the BCrypt hash and returns a JWT token valid for 8 hours. The token is stored in localStorage and attached to all subsequent API requests via an Axios interceptor. If the token expires or is invalid, the user is redirected back to the login page.
 
-![Login](./readme%20screenshots/Login.png)
+![Login](./docs/screenshot/Login.png)
 
 ---
 
@@ -63,35 +63,35 @@ Registered users can log in using their **email** and **password**. The server v
 
 The dashboard is the main landing page after login. It gives a complete overview of the hotel's current state at a glance.
 
-![Dashboard - Top Section](./readme%20screenshots/Dashboard.png)
+![Dashboard - Top Section](./docs/screenshot/Dashboard.png)
 
-**Summary Cards** across the top show:
-- **Total Rooms** (9 rooms across 4 categories)
-- **Available Rooms** (8 rooms ready for check-in)
-- **Occupied Rooms** (0 currently checked-in, 0% occupancy)
-- **Active Bookings** (2 bookings that are pending, confirmed, or checked-in)
-- **Total Customers** (8 registered customer profiles)
-- **Total Revenue** ($2,308,500 collected from paid transactions)
+**Summary KPI Cards** across the top show:
+- **Total Rooms**: Real-time count of all configured rooms across all categories
+- **Available Rooms**: Number of vacant rooms ready for immediate guest check-in
+- **Occupied Rooms**: Current active checked-in room count and live occupancy percentage
+- **Active Bookings**: Total active reservations in Pending, Confirmed, or Checked-in state
+- **Total Customers**: Total registered guest profiles in the customer master directory
+- **Total Revenue**: Cumulative revenue collected from completed payment transactions
 
-**Occupancy Overview** displays an SVG donut chart breaking down room status into Available, Occupied (Checked In), and Reserved/Pending categories with progress bars for each.
+**Occupancy Overview** displays an interactive SVG donut chart breaking down room status into Available, Occupied (Checked In), and Reserved/Pending categories with live progress indicators.
 
-**Booking Status Distribution** shows the count and percentage of all reservations grouped by status: Confirmed (1), Checked In (0), Pending Payment (1), Checked Out (10), and Cancelled (1) out of 13 total reservations.
+**Booking Status Distribution** visualizes the distribution of all reservations grouped across standard lifecycle states (Confirmed, Checked In, Pending Payment, Checked Out, and Cancelled).
 
-**Monthly Revenue (Last 6 Months)** is a bar chart tracking paid transaction totals month by month, with hover tooltips showing exact amounts.
+**Monthly Revenue (Last 6 Months)** is a dynamic bar chart tracking paid transaction totals month by month, with interactive hover tooltips.
 
-**Monthly Occupancy Trend** visualizes room occupancy percentage over the last 6 months calculated on a room-days basis.
+**Monthly Occupancy Trend** visualizes room occupancy percentages over the last 6 months calculated on a room-days basis.
 
-![Dashboard - Bottom Section](./readme%20screenshots/Dashboard2.png)
+![Dashboard - Bottom Section](./docs/screenshot/Dashboard2.png)
 
-**Occupancy by Room Category** breaks down utilization rates per room type (Deluxe, Normal, Penthouse, Suite) showing how many rooms are occupied out of the total in each category.
+**Occupancy by Room Category** breaks down real-time utilization rates per room tier (Standard, Deluxe, Suite, Penthouse).
 
-**Financial Ledger & Collections** displays the Total Collected amount ($2,308,500) and Outstanding Balance ($759,500), along with a breakdown of reservation payment statuses: Fully Paid (10), Partially Paid (1), and Unpaid (1).
+**Financial Ledger & Collections** presents an executive summary of Total Collected Revenue versus Outstanding Balances, accompanied by a breakdown of reservation payment settlement statuses (Fully Paid, Partially Paid, and Unpaid).
 
-**Recent Reservations** lists the 5 most recent bookings with booking ID, room number, customer name, dates, amount, and current status.
+**Recent Reservations** displays the most recent bookings with booking ID, room number, customer name, date range, total fee, and current status.
 
-**Recent Transactions** lists the 5 most recent payments with payment ID, linked booking, payment method (Cash, Bank Transfer, etc.), amount, and status.
+**Recent Transactions** displays the latest financial payments with transaction ID, linked reservation, payment method, amount, and status.
 
-**Hotel Administrative Quick Actions** at the bottom provides shortcut buttons for common tasks: New Reservation, Manage Inventory, Customer Directory, Record Payment, Customer Check-in, and Customer Check-out.
+**Hotel Administrative Quick Actions** provides one-click shortcut buttons for routine operations: New Reservation, Manage Inventory, Customer Directory, Record Payment, Customer Check-in, and Customer Check-out.
 
 ---
 
@@ -105,7 +105,7 @@ The sidebar navigation lets users move between all sections of the application. 
 
 The sidebar footer shows the currently logged-in user's avatar, username, and role, with a logout button. Clicking the user section opens the profile modal. On mobile devices, the sidebar collapses into a hamburger menu.
 
-![Navigation Bar](./readme%20screenshots/Navigation_bar.png)
+![Navigation Bar](./docs/screenshot/Navigation_bar.png)
 
 ---
 
@@ -122,7 +122,7 @@ The rooms page displays all hotel rooms in a table with columns for Room Number,
 
 Room numbers are unique across the system. Trying to create or rename a room to a number that already exists will be rejected.
 
-![Room Management](./readme%20screenshots/Room_Management.png)
+![Room Management](./docs/screenshot/Room_Management.png)
 
 ---
 
@@ -139,7 +139,7 @@ There is also a **search bar** at the top that filters customers in real-time by
 
 Customer emails must be unique. The system rejects duplicate emails on both creation and update.
 
-![Customer Management](./readme%20screenshots/Customer_Management.png)
+![Customer Management](./docs/screenshot/Customer_Management.png)
 
 ---
 
@@ -160,7 +160,7 @@ The booking status follows this flow:
 
 At any point before check-in, a booking can also be `Cancelled`. When a booking's payment is fully completed, the status automatically changes from Pending to Confirmed.
 
-![Booking Management](./readme%20screenshots/Booking_Management.png)
+![Booking Management](./docs/screenshot/Booking_Management.png)
 
 ---
 
@@ -176,7 +176,7 @@ Payments cannot be recorded against cancelled bookings, and the system prevents 
 
 The transaction history table lists every recorded payment with its ID, linked booking, amount, method, status, and date.
 
-![Payment Management](./readme%20screenshots/Payment_Management.png)
+![Payment Management](./docs/screenshot/Payment_Management.png)
 
 ---
 
@@ -193,7 +193,7 @@ Each employee record includes:
 - Role (e.g., Manager, Receptionist, Chef, Security, Housekeeping)
 - Salary
 
-![Employee Management](./readme%20screenshots/Employee_Management.png)
+![Employee Management](./docs/screenshot/Employee_Management.png)
 
 ---
 
@@ -209,7 +209,7 @@ The profile modal allows updating:
 
 There is also a **Change Password** section where the user needs to enter their current password for verification, then the new password and confirmation.
 
-![User Profile](./readme%20screenshots/User_profile.png)
+![User Profile](./docs/screenshot/User_profile.png)
 
 ---
 
